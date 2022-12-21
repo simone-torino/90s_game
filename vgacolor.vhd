@@ -33,20 +33,36 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
-	COMPONENT cube IS
+	-- COMPONENT cube IS
+	-- 	PORT (
+	-- 		clk, rstn : IN STD_LOGIC;
+	-- 		x_pixel_ref, y_pixel_ref : IN INTEGER;
+	-- 		xscan, yscan : IN INTEGER;
+	-- 		red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+	-- 	);
+	-- END COMPONENT;
+
+	-- COMPONENT move_cube IS
+	-- 	PORT (
+	-- 		clk, rstn : IN STD_LOGIC;
+	-- 		button_up, button_down, button_right, button_left : IN STD_LOGIC;
+	-- 		x_pixel_ref, y_pixel_ref : BUFFER INTEGER
+	-- 	);
+	-- END COMPONENT;
+
+	COMPONENT easy_mode_move IS
+		PORT (
+			clk, rstn : IN STD_LOGIC;
+			y_pixel_ref : BUFFER INTEGER
+		);
+	END COMPONENT;
+
+	COMPONENT racket IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
 			x_pixel_ref, y_pixel_ref : IN INTEGER;
 			xscan, yscan : IN INTEGER;
 			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-		);
-	END COMPONENT;
-
-	COMPONENT move_cube IS
-		PORT (
-			clk, rstn : IN STD_LOGIC;
-			button_up, button_down, button_right, button_left : IN STD_LOGIC;
-			x_pixel_ref, y_pixel_ref : BUFFER INTEGER
 		);
 	END COMPONENT;
 
@@ -68,6 +84,7 @@ ARCHITECTURE behavior OF vgacolor IS
 
 	SIGNAL x_pixel_ref : INTEGER;
 	SIGNAL y_pixel_ref : INTEGER;
+	SIGNAL y_pixel_ref_opponent_racket : INTEGER;
 
 BEGIN
 
@@ -145,16 +162,26 @@ BEGIN
 
 	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
-	draw_cube : cube PORT MAP(
+	-- draw_cube : cube PORT MAP(
+	-- 	clk => clock25, rstn => RSTn,
+	-- 	x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
+	-- 	xscan => hpos, yscan => vpos,
+	-- 	red => VGA_R, green => VGA_G, blue => VGA_B);
+
+	-- cube_moviment : move_cube PORT MAP(
+	-- 	clk => clock25, rstn => RSTn,
+	-- 	button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
+	-- 	button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
+	-- 	x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
+
+	draw_opponent_racket : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
-		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
+		x_pixel_ref => 50, y_pixel_ref => y_pixel_ref_opponent_racket,
 		xscan => hpos, yscan => vpos,
 		red => VGA_R, green => VGA_G, blue => VGA_B);
 
-	cube_moviment : move_cube PORT MAP(
+	opponent_moviment : easy_mode_move PORT MAP(
 		clk => clock25, rstn => RSTn,
-		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
-		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
-		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
+		y_pixel_ref => y_pixel_ref_opponent_racket);	
 
 END behavior;
