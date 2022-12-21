@@ -9,7 +9,8 @@ ENTITY vgacolor IS
 		KEY : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 		VGA_R, VGA_B, VGA_G : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		VGA_CLK, VGA_SYNC_N, VGA_BLANK_N : OUT STD_LOGIC;
-		VGA_VS, VGA_HS : OUT STD_LOGIC
+		VGA_VS, VGA_HS : OUT STD_LOGIC;
+		SW : IN STD_LOGIC_VECTOR(9 DOWNTO 9)
 	);
 END vgacolor;
 
@@ -44,8 +45,8 @@ ARCHITECTURE behavior OF vgacolor IS
 	COMPONENT move_cube IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
-			button_up, button_down : IN STD_LOGIC;
-			y_pixel_ref : BUFFER INTEGER
+			button_up, button_down, button_right, button_left : IN STD_LOGIC;
+			x_pixel_ref, y_pixel_ref : BUFFER INTEGER
 		);
 	END COMPONENT;
 
@@ -65,6 +66,7 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL clock25 : STD_LOGIC := '0';
 	SIGNAL locked : STD_LOGIC;
 
+	SIGNAL x_pixel_ref : INTEGER;
 	SIGNAL y_pixel_ref : INTEGER;
 
 BEGIN
@@ -72,7 +74,7 @@ BEGIN
 	--locked <= '1';
 	VGA_SYNC_N <= '1';
 	VGA_BLANK_N <= '1';
-	RSTn <= KEY(0) AND LOCKED;
+	RSTn <= NOT(SW(9)) AND LOCKED;
 
 	--	clk25 : PROCESS (CLOCK_50)
 	--	BEGIN
@@ -141,17 +143,18 @@ BEGIN
 
 	ff2 : FlipFlop_D PORT MAP(vsync, clock25, '1', '0', RSTn, VGA_VS);
 
-	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => NOT(KEY(0)), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
+	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
 	draw_cube : cube PORT MAP(
 		clk => clock25, rstn => RSTn,
-		x_pixel_ref => 20, y_pixel_ref => y_pixel_ref,
+		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		red => VGA_R, green => VGA_G, blue => VGA_B);
 
 	cube_moviment : move_cube PORT MAP(
 		clk => clock25, rstn => RSTn,
-		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
-		y_pixel_ref => y_pixel_ref);
+		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
+		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
+		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
 
 END behavior;
