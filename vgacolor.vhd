@@ -33,7 +33,7 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
-	COMPONENT cube IS
+	COMPONENT ball IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
 			x_pixel_ref, y_pixel_ref : IN INTEGER;
@@ -42,7 +42,7 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
-	COMPONENT move_cube IS
+	COMPONENT move_ball IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
 			button_up, button_down, button_right, button_left : IN STD_LOGIC;
@@ -145,13 +145,13 @@ BEGIN
 
 	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
-	draw_cube : cube PORT MAP(
+	draw_ball : ball PORT MAP(
 		clk => clock25, rstn => RSTn,
 		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		red => VGA_R, green => VGA_G, blue => VGA_B);
 
-	cube_moviment : move_cube PORT MAP(
+	ball_moviment : move_ball PORT MAP(
 		clk => clock25, rstn => RSTn,
 		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
 		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
