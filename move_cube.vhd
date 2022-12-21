@@ -45,15 +45,18 @@ BEGIN
                 IF (y_pixel_ref > 0) THEN
                     y_pixel_ref <= y_pixel_ref - 1;
                 END IF;
-            ELSIF (button_down = '1') THEN
+            END IF;
+            IF (button_down = '1') THEN
                 IF (y_pixel_ref + y_dim < y_lim) THEN
                     y_pixel_ref <= y_pixel_ref + 1;
                 END IF;
-            ELSIF (button_right = '1') THEN
+            END IF;
+            IF (button_right = '1') THEN
                 IF (x_pixel_ref + x_dim < x_lim) THEN
                     x_pixel_ref <= x_pixel_ref + 1;
                 END IF;
-            ELSIF (button_left = '1') THEN
+            END IF;
+            IF (button_left = '1') THEN
                 IF (x_pixel_ref > 0) THEN
                     x_pixel_ref <= x_pixel_ref - 1;
                 END IF;
