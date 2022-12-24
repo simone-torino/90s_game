@@ -36,19 +36,20 @@ ARCHITECTURE behavior OF vgacolor IS
 	COMPONENT cube IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
-			x_pixel_ref, y_pixel_ref : IN INTEGER;
+			x_pixel_ref, y_pixel_ref : BUFFER INTEGER;
 			xscan, yscan : IN INTEGER;
+			button_up, button_down, button_right, button_left : IN STD_LOGIC;
 			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 		);
 	END COMPONENT;
 
-	COMPONENT move_cube IS
-		PORT (
-			clk, rstn : IN STD_LOGIC;
-			button_up, button_down, button_right, button_left : IN STD_LOGIC;
-			x_pixel_ref, y_pixel_ref : BUFFER INTEGER
-		);
-	END COMPONENT;
+	--	COMPONENT move_cube IS
+	--		PORT (
+	--			clk, rstn : IN STD_LOGIC;
+	--			button_up, button_down, button_right, button_left : IN STD_LOGIC;
+	--			x_pixel_ref, y_pixel_ref : BUFFER INTEGER
+	--		);
+	--	END COMPONENT;
 
 	CONSTANT ha : INTEGER := 96;
 	CONSTANT hb : INTEGER := 48;
@@ -149,12 +150,27 @@ BEGIN
 		clk => clock25, rstn => RSTn,
 		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
-		red => VGA_R, green => VGA_G, blue => VGA_B);
-
-	cube_moviment : move_cube PORT MAP(
-		clk => clock25, rstn => RSTn,
 		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
 		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
-		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
+		red => VGA_R, green => VGA_G, blue => VGA_B);
 
+	--	cube_moviment : move_cube PORT MAP(
+	--		clk => clock25, rstn => RSTn,
+	--		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
+	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
+	--		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
+
+	--	field_drow : field PORT MAP(
+	--		clk => clock25, rstn => RSTn,
+	--		xscan => hpos, yscan => vpos,
+	--		red => VGA_R, green => VGA_G, blue => VGA_B);
+
+	--	draw_figures : figures PORT MAP(
+	--		clk => clock25, rstn => RSTn,
+	--		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
+	--		xscan => hpos, yscan => vpos,
+	--		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
+	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
+	--		red => VGA_R, green => VGA_G, blue => VGA_B
+	--	);
 END behavior;
