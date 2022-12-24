@@ -9,7 +9,8 @@ ENTITY racket IS
         y_pixel_ref : BUFFER INTEGER;
         xscan, yscan : IN INTEGER;
         button_up, button_down : IN STD_LOGIC;
-        red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+        flag : OUT STD_LOGIC
+        --        red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
     );
 END racket;
 
@@ -34,18 +35,21 @@ BEGIN
     draw_racket : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
-            red <= (OTHERS => '0');
-            green <= (OTHERS => '0');
-            blue <= (OTHERS => '0');
+            flag <= '0';
+            --            red <= (OTHERS => '0');
+            --            green <= (OTHERS => '0');
+            --            blue <= (OTHERS => '0');
         ELSIF (clk'event AND clk = '1') THEN
             IF (xscan >= x_left AND xscan <= x_right AND yscan >= y_up AND yscan <= y_down) THEN
-                red <= (OTHERS => '1');
-                green <= (OTHERS => '1');
-                blue <= (OTHERS => '1');
+                flag <= '1';
+                --                red <= (OTHERS => '1');
+                --                green <= (OTHERS => '1');
+                --                blue <= (OTHERS => '1');
             ELSE
-                red <= (OTHERS => '0');
-                green <= (OTHERS => '0');
-                blue <= (OTHERS => '0');
+                flag <= '0';
+                --                red <= (OTHERS => '0');
+                --                green <= (OTHERS => '0');
+                --                blue <= (OTHERS => '0');
             END IF;
         END IF;
     END PROCESS;

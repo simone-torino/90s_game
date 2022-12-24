@@ -33,21 +33,21 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
---	COMPONENT cube IS
---		PORT (
---			clk, rstn : IN STD_LOGIC;
---			x_pixel_ref, y_pixel_ref : BUFFER INTEGER;
---			xscan, yscan : IN INTEGER;
---			button_up, button_down, button_right, button_left : IN STD_LOGIC;
---			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
---		);
---	END COMPONENT;
+	--	COMPONENT cube IS
+	--		PORT (
+	--			clk, rstn : IN STD_LOGIC;
+	--			x_pixel_ref, y_pixel_ref : BUFFER INTEGER;
+	--			xscan, yscan : IN INTEGER;
+	--			button_up, button_down, button_right, button_left : IN STD_LOGIC;
+	--			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+	--		);
+	--	END COMPONENT;
 
 	COMPONENT field IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
 			xscan, yscan : IN INTEGER;
-			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
 
@@ -58,7 +58,7 @@ ARCHITECTURE behavior OF vgacolor IS
 			y_pixel_ref : BUFFER INTEGER;
 			xscan, yscan : IN INTEGER;
 			button_up, button_down : IN STD_LOGIC;
-			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
 
@@ -89,12 +89,12 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL x_pixel_ref : INTEGER;
 	SIGNAL y_pixel_ref : INTEGER;
 
---	SIGNAL r_cube, g_cube, b_cube : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	--	SIGNAL r_cube, g_cube, b_cube : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_racket_sx, g_racket_sx, b_racket_sx : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_racket_dx, g_racket_dx, b_racket_dx : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
-	SIGNAL choose_output : INTEGER;
+	SIGNAL pixel_on, pixel_on_field, pixel_on_racket_left, pixel_on_racket_right : STD_LOGIC;
 
 BEGIN
 
@@ -172,13 +172,13 @@ BEGIN
 
 	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
---	cube_portmap : cube PORT MAP(
---		clk => clock25, rstn => RSTn,
---		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
---		xscan => hpos, yscan => vpos,
---		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
---		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
---		red => r_cube, green => g_cube, blue => b_cube);
+	--	cube_portmap : cube PORT MAP(
+	--		clk => clock25, rstn => RSTn,
+	--		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
+	--		xscan => hpos, yscan => vpos,
+	--		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
+	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
+	--		red => r_cube, green => g_cube, blue => b_cube);
 
 	--	cube_moviment : move_cube PORT MAP(
 	--		clk => clock25, rstn => RSTn,
@@ -189,7 +189,9 @@ BEGIN
 	field_portmap : field PORT MAP(
 		clk => clock25, rstn => RSTn,
 		xscan => hpos, yscan => vpos,
-		red => r_field, green => g_field, blue => b_field);
+		flag => pixel_on_field
+		--		red => r_field, green => g_field, blue => b_field
+	);
 
 	--	draw_figures : figures PORT MAP(
 	--		clk => clock25, rstn => RSTn,
@@ -200,19 +202,25 @@ BEGIN
 	--		red => VGA_R, green => VGA_G, blue => VGA_B
 	--	);
 
-	racket_sx_portmap : racket PORT MAP(
+	racket_left_portmap : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
 		x_pixel_ref => 37, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
-		red => r_racket_sx, green => g_racket_sx, blue => b_racket_sx);
+		flag => pixel_on_racket_left
+		--		red => r_racket_sx, green => g_racket_sx, blue => b_racket_sx
+	);
 
-	racket_dx_portmap : racket PORT MAP(
+	racket_right_portmap : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
 		x_pixel_ref => 593, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(1)), button_down => NOT(KEY(0)),
-		red => r_racket_dx, green => g_racket_dx, blue => b_racket_dx);
+		flag => pixel_on_racket_right
+		--		red => r_racket_dx, green => g_racket_dx, blue => b_racket_dx
+	);
+
+	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right;
 
 	display_all : PROCESS (clock25, RSTn)
 	BEGIN
@@ -220,35 +228,16 @@ BEGIN
 			VGA_R <= (OTHERS => '0');
 			VGA_G <= (OTHERS => '0');
 			VGA_B <= (OTHERS => '0');
-			choose_output <= 0;
 		ELSIF (clock25'event AND clock25 = '1') THEN
-			CASE choose_output IS
---				WHEN 0 => --display cube
---					VGA_R <= r_cube;
---					VGA_G <= g_cube;
---					VGA_B <= b_cube;
---					choose_output <= 1;
-				WHEN 0 => --display field
-					VGA_R <= r_field;
-					VGA_G <= g_field;
-					VGA_B <= b_field;
-					choose_output <= 1;
-				WHEN 1 => --display racket sx
-					VGA_R <= r_racket_sx;
-					VGA_G <= g_racket_sx;
-					VGA_B <= b_racket_sx;
-					choose_output <= 2;
-				WHEN 2 => --display racket dx
-					VGA_R <= r_racket_dx;
-					VGA_G <= g_racket_dx;
-					VGA_B <= b_racket_dx;
-					choose_output <= 0;
-				WHEN OTHERS =>
-					VGA_R <= (OTHERS => '0');
-					VGA_G <= (OTHERS => '0');
-					VGA_B <= (OTHERS => '0');
-					choose_output <= 0;
-			END CASE;
+			IF (pixel_on = '1') THEN
+				VGA_R <= (OTHERS => '1');
+				VGA_G <= (OTHERS => '1');
+				VGA_B <= (OTHERS => '1');
+			ELSE
+				VGA_R <= (OTHERS => '0');
+				VGA_G <= (OTHERS => '0');
+				VGA_B <= (OTHERS => '0');
+			END IF;
 		END IF;
 	END PROCESS;
 
