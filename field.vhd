@@ -6,7 +6,7 @@ ENTITY field IS
     PORT (
         clk, rstn : IN STD_LOGIC;
         xscan, yscan : IN INTEGER;
-        out_field : OUT STD_LOGIC_VECTOR (23 DOWNTO 0)
+        red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
     );
 END field;
 
@@ -16,8 +16,6 @@ ARCHITECTURE behavior OF field IS
     CONSTANT thickness : INTEGER := 5;
     CONSTANT y_max : INTEGER := 480;
     CONSTANT x_max : INTEGER := 640;
-
-    SIGNAL red, green, blue : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 BEGIN
     draw_field : PROCESS (clk, rstn)
@@ -46,5 +44,4 @@ BEGIN
         END IF;
     END PROCESS;
 
-    out_field <= red & green & blue;
 END behavior;

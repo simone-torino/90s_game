@@ -37,9 +37,9 @@ BEGIN
             blue <= (OTHERS => '0');
         ELSIF (clk'event AND clk = '1') THEN
             IF (xscan >= x_left AND xscan <= x_right AND yscan >= y_up AND yscan <= y_down) THEN
-                red <= (OTHERS => '0');
+                red <= (OTHERS => '1');
                 green <= (OTHERS => '1');
-                blue <= (OTHERS => '0');
+                blue <= (OTHERS => '1');
             ELSE
                 red <= (OTHERS => '0');
                 green <= (OTHERS => '0');

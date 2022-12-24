@@ -43,6 +43,14 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
+	COMPONENT field IS
+		PORT (
+			clk, rstn : IN STD_LOGIC;
+			xscan, yscan : IN INTEGER;
+			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+		);
+	END COMPONENT;
+
 	--	COMPONENT move_cube IS
 	--		PORT (
 	--			clk, rstn : IN STD_LOGIC;
@@ -69,6 +77,11 @@ ARCHITECTURE behavior OF vgacolor IS
 
 	SIGNAL x_pixel_ref : INTEGER;
 	SIGNAL y_pixel_ref : INTEGER;
+
+	SIGNAL r_cube, g_cube, b_cube : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
+
+	SIGNAL choose_output : INTEGER;
 
 BEGIN
 
@@ -146,13 +159,13 @@ BEGIN
 
 	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
-	draw_cube : cube PORT MAP(
+	cube_process : cube PORT MAP(
 		clk => clock25, rstn => RSTn,
 		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
 		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
-		red => VGA_R, green => VGA_G, blue => VGA_B);
+		red => r_cube, green => g_cube, blue => b_cube);
 
 	--	cube_moviment : move_cube PORT MAP(
 	--		clk => clock25, rstn => RSTn,
@@ -160,10 +173,10 @@ BEGIN
 	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
 	--		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
 
-	--	field_drow : field PORT MAP(
-	--		clk => clock25, rstn => RSTn,
-	--		xscan => hpos, yscan => vpos,
-	--		red => VGA_R, green => VGA_G, blue => VGA_B);
+	field_process : field PORT MAP(
+		clk => clock25, rstn => RSTn,
+		xscan => hpos, yscan => vpos,
+		red => r_field, green => g_field, blue => b_field);
 
 	--	draw_figures : figures PORT MAP(
 	--		clk => clock25, rstn => RSTn,
@@ -173,4 +186,33 @@ BEGIN
 	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
 	--		red => VGA_R, green => VGA_G, blue => VGA_B
 	--	);
+
+	display_all : PROCESS (clock25, RSTn)
+	BEGIN
+		IF (rstn = '0') THEN
+			VGA_R <= (OTHERS => '0');
+			VGA_G <= (OTHERS => '0');
+			VGA_B <= (OTHERS => '0');
+			choose_output <= 0;
+		ELSIF (clock25'event AND clock25 = '1') THEN
+			CASE choose_output IS
+				WHEN 0 => --display cube
+					VGA_R <= r_cube;
+					VGA_G <= g_cube;
+					VGA_B <= b_cube;
+					choose_output <= 1;
+				WHEN 1 => --display field
+					VGA_R <= r_field;
+					VGA_G <= g_field;
+					VGA_B <= b_field;
+					choose_output <= 0;
+				WHEN OTHERS =>
+					VGA_R <= (OTHERS => '0');
+					VGA_G <= (OTHERS => '0');
+					VGA_B <= (OTHERS => '0');
+					choose_output <= 0;
+			END CASE;
+		END IF;
+	END PROCESS;
+
 END behavior;
