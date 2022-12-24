@@ -1,0 +1,17 @@
+# File generati da Quartus
+db/
+incremental_db/
+mypll/
+mypll_sim/
+output_files/
+*.bak
+*.txt
+*.f
+*.sip
+*.qip
+*.spd
+*.qpf
+*.cmp
+*.ppf
+*.bsf
+*.qws
