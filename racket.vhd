@@ -60,7 +60,7 @@ BEGIN
             clk_ref <= '0';
             cnt <= 0;
         ELSIF (clk'event AND clk = '1') THEN
-            IF (cnt < 100000) THEN
+            IF (cnt < 85000) THEN
                 cnt <= cnt + 1;
             ELSE
                 cnt <= 0;

@@ -6,6 +6,7 @@ ENTITY field IS
     PORT (
         clk, rstn : IN STD_LOGIC;
         xscan, yscan : IN INTEGER;
+        right_limit, left_limit, top_limit, bottom_limit : OUT INTEGER;
         flag : OUT STD_LOGIC
         --red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
     );
@@ -48,5 +49,10 @@ BEGIN
             END IF;
         END IF;
     END PROCESS;
+
+    right_limit <= x_max - offset - thickness;
+    left_limit <= offset + thickness;
+    top_limit <= offset_top + thickness;
+    bottom_limit <= y_max - offset - thickness;
 
 END behavior;

@@ -16,6 +16,14 @@ END vgacolor;
 
 ARCHITECTURE behavior OF vgacolor IS
 
+	COMPONENT vga_management IS
+		PORT (
+			clk, rstn : IN STD_LOGIC;
+			hs, vs : OUT STD_LOGIC;
+			hpos, vpos : BUFFER INTEGER
+		);
+	END COMPONENT;
+
 	COMPONENT FlipFlop_D IS
 		PORT (
 			D, Clk, Ld, Clr, Rstn : IN STD_LOGIC;
@@ -33,20 +41,11 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
-	--	COMPONENT cube IS
-	--		PORT (
-	--			clk, rstn : IN STD_LOGIC;
-	--			x_pixel_ref, y_pixel_ref : BUFFER INTEGER;
-	--			xscan, yscan : IN INTEGER;
-	--			button_up, button_down, button_right, button_left : IN STD_LOGIC;
-	--			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	--		);
-	--	END COMPONENT;
-
 	COMPONENT field IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
 			xscan, yscan : IN INTEGER;
+			right_limit, left_limit, top_limit, bottom_limit : OUT INTEGER;
 			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
@@ -62,24 +61,6 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
-	--	COMPONENT move_cube IS
-	--		PORT (
-	--			clk, rstn : IN STD_LOGIC;
-	--			button_up, button_down, button_right, button_left : IN STD_LOGIC;
-	--			x_pixel_ref, y_pixel_ref : BUFFER INTEGER
-	--		);
-	--	END COMPONENT;
-
-	CONSTANT ha : INTEGER := 96;
-	CONSTANT hb : INTEGER := 48;
-	CONSTANT hc : INTEGER := 640;
-	CONSTANT hd : INTEGER := 16;
-
-	CONSTANT va : INTEGER := 2;
-	CONSTANT vb : INTEGER := 33;
-	CONSTANT vc : INTEGER := 480;
-	CONSTANT vd : INTEGER := 10;
-
 	SIGNAL RSTn : STD_LOGIC;
 	SIGNAL hpos, vpos : INTEGER;
 	SIGNAL hsync, vsync : STD_LOGIC;
@@ -89,7 +70,6 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL x_pixel_ref : INTEGER;
 	SIGNAL y_pixel_ref : INTEGER;
 
-	--	SIGNAL r_cube, g_cube, b_cube : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_racket_sx, g_racket_sx, b_racket_sx : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_racket_dx, g_racket_dx, b_racket_dx : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -98,93 +78,21 @@ ARCHITECTURE behavior OF vgacolor IS
 
 BEGIN
 
-	--locked <= '1';
 	VGA_SYNC_N <= '1';
 	VGA_BLANK_N <= '1';
 	RSTn <= NOT(SW(9)) AND LOCKED;
 
-	--	clk25 : PROCESS (CLOCK_50)
-	--	BEGIN
-	--		IF (CLOCK_50'EVENT AND CLOCK_50 = '1') THEN
-	--			clock25 <= NOT clock25;
-	--		END IF;
-	--	END PROCESS;
-
-	hscan : PROCESS (clock25, RSTn)
-	BEGIN
-		IF (RSTn = '0') THEN
-			hpos <= 0;
-		ELSIF (clock25'EVENT AND clock25 = '1') THEN
-			IF (hpos = (ha + hb + hc + hd - 1)) THEN
-				hpos <= 0;
-			ELSE
-				hpos <= hpos + 1;
-			END IF;
-		END IF;
-	END PROCESS;
-
-	vscan : PROCESS (clock25, RSTn)
-	BEGIN
-		IF (RSTn = '0') THEN
-			vpos <= 0;
-		ELSIF (clock25'EVENT AND clock25 = '1') THEN
-			IF (vpos >= (va + vb + vc + vd - 1)) THEN
-				vpos <= 0;
-			ELSIF (hpos = ha + hb + hc + hd - 1) THEN
-				vpos <= vpos + 1;
-			END IF;
-		END IF;
-	END PROCESS;
-	--sync signal
-	hsynch : PROCESS (clock25, RSTn)
-	BEGIN
-		IF (RSTn = '0') THEN
-			hsync <= '1';
-		ELSIF (clock25'EVENT AND clock25 = '1') THEN
-			IF (hpos > (hc + hd - 1) AND hpos <= (hc + hd + ha - 1)) THEN
-				hsync <= '0';
-			ELSE
-				hsync <= '1';
-			END IF;
-		END IF;
-
-	END PROCESS;
-
-	--VGA_HS <= hsync;
-	--VGA_VS <= vsync;
+	vga_signals : vga_management PORT MAP(
+		clk => clock25, rstn => RSTn,
+		hs => hsync, vs => vsync,
+		hpos => hpos, vpos => vpos
+	);
 
 	ff1 : FlipFlop_D PORT MAP(hsync, clock25, '1', '0', RSTn, VGA_HS);
-	vsynch : PROCESS (clock25, RSTn)
-	BEGIN
-		IF (RSTn = '0') THEN
-			vsync <= '0';
-		ELSIF (clock25'EVENT AND clock25 = '1') THEN
-			IF (vpos > (vc + vd - 1) AND vpos <= (vc + vd + va - 1)) THEN
-				vsync <= '0';
-			ELSE
-				vsync <= '1';
-			END IF;
-		END IF;
-
-	END PROCESS;
 
 	ff2 : FlipFlop_D PORT MAP(vsync, clock25, '1', '0', RSTn, VGA_VS);
 
 	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
-
-	--	cube_portmap : cube PORT MAP(
-	--		clk => clock25, rstn => RSTn,
-	--		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
-	--		xscan => hpos, yscan => vpos,
-	--		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
-	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
-	--		red => r_cube, green => g_cube, blue => b_cube);
-
-	--	cube_moviment : move_cube PORT MAP(
-	--		clk => clock25, rstn => RSTn,
-	--		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
-	--		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
-	--		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
 
 	field_portmap : field PORT MAP(
 		clk => clock25, rstn => RSTn,
@@ -208,7 +116,6 @@ BEGIN
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
 		flag => pixel_on_racket_left
-		--		red => r_racket_sx, green => g_racket_sx, blue => b_racket_sx
 	);
 
 	racket_right_portmap : racket PORT MAP(
@@ -217,7 +124,6 @@ BEGIN
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(1)), button_down => NOT(KEY(0)),
 		flag => pixel_on_racket_right
-		--		red => r_racket_dx, green => g_racket_dx, blue => b_racket_dx
 	);
 
 	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right;
