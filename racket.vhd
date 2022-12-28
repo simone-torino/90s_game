@@ -5,13 +5,12 @@ USE ieee.numeric_std.ALL;
 ENTITY racket IS
     PORT (
         clk, rstn : IN STD_LOGIC;
-        x_pixel_ref : IN INTEGER;
+        x_pixel_ref : BUFFER INTEGER;
         y_pixel_ref : BUFFER INTEGER;
         xscan, yscan : IN INTEGER;
         button_up, button_down : IN STD_LOGIC;
-        top_limit, bottom_limit : IN INTEGER;
+        top_limit, bottom_limit, lateral_limit : IN INTEGER;
         flag : OUT STD_LOGIC
-        --        red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
     );
 END racket;
 
@@ -73,6 +72,7 @@ BEGIN
     racket_moviment_vertical : PROCESS (clk_ref, rstn)
     BEGIN
         IF (rstn = '0') THEN
+            x_pixel_ref <= lateral_limit;
             y_pixel_ref <= 65 + 190 - (y_dim/2);
         ELSIF (clk_ref'event AND clk_ref = '1') THEN
             IF (button_up = '1') THEN

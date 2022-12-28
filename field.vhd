@@ -6,7 +6,7 @@ ENTITY field IS
     PORT (
         clk, rstn : IN STD_LOGIC;
         xscan, yscan : IN INTEGER;
-        right_limit, left_limit, top_limit, bottom_limit : OUT INTEGER;
+        right_limit, left_limit, top_limit, bottom_limit : BUFFER INTEGER;
         flag : OUT STD_LOGIC
         --red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
     );
@@ -32,20 +32,14 @@ BEGIN
                 --           IF (((xscan >= offset AND xscan <= offset + thickness) OR (xscan >= x_max - offset - thickness AND xscan <= x_max - offset)) OR
                 --                ((yscan >= offset_top AND yscan <= offset_top + thickness) OR (yscan >= y_max - offset - thickness AND yscan <= y_max - offset))) THEN
                 flag <= '1';
-                --                red <= (OTHERS => '1');
-                --                green <= (OTHERS => '1');
-                --                blue <= (OTHERS => '1');
-                IF (xscan >= offset + thickness AND xscan <= x_max - offset - thickness AND yscan >= offset_top + thickness AND yscan <= y_max - offset - thickness) THEN
+                IF (xscan >= left_limit AND xscan <= right_limit AND yscan >= top_limit AND yscan <= bottom_limit) THEN
                     flag <= '0';
-                    --                    red <= (OTHERS => '0');
-                    --                    green <= (OTHERS => '0');
-                    --                    blue <= (OTHERS => '0');
+                    IF (xscan >= left_limit + ((right_limit - left_limit)/2) - 1 AND xscan <= left_limit + ((right_limit - left_limit)/2) + 1 AND yscan >= top_limit AND yscan <= bottom_limit) THEN
+                        flag <= '1';
+                    END IF;
                 END IF;
             ELSE
                 flag <= '0';
-                --                red <= (OTHERS => '0');
-                --                green <= (OTHERS => '0');
-                --                blue <= (OTHERS => '0');
             END IF;
         END IF;
     END PROCESS;

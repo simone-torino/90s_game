@@ -45,7 +45,7 @@ ARCHITECTURE behavior OF vgacolor IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
 			xscan, yscan : IN INTEGER;
-			right_limit, left_limit, top_limit, bottom_limit : OUT INTEGER;
+			right_limit, left_limit, top_limit, bottom_limit : BUFFER INTEGER;
 			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
@@ -53,11 +53,11 @@ ARCHITECTURE behavior OF vgacolor IS
 	COMPONENT racket IS
 		PORT (
 			clk, rstn : IN STD_LOGIC;
-			x_pixel_ref : IN INTEGER;
+			x_pixel_ref : BUFFER INTEGER;
 			y_pixel_ref : BUFFER INTEGER;
 			xscan, yscan : IN INTEGER;
 			button_up, button_down : IN STD_LOGIC;
-			top_limit, bottom_limit : IN INTEGER;
+			top_limit, bottom_limit, lateral_limit : IN INTEGER;
 			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
@@ -68,6 +68,7 @@ ARCHITECTURE behavior OF vgacolor IS
 			x_pixel_ref, y_pixel_ref : BUFFER INTEGER;
 			xscan, yscan : IN INTEGER;
 			right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
+			y_racket_left, y_racket_right, x_racket_left, x_racket_right : IN INTEGER;
 			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
@@ -78,8 +79,10 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL clock25 : STD_LOGIC := '0';
 	SIGNAL locked : STD_LOGIC;
 
-	SIGNAL x_pixel_ref : INTEGER;
-	SIGNAL y_pixel_ref : INTEGER;
+	SIGNAL y_ref_right_racket, y_ref_left_racket : INTEGER;
+	SIGNAL x_ref_right_racket, x_ref_left_racket : INTEGER;
+	
+	SIGNAL x_pixel_ref, y_pixel_ref : INTEGER;
 
 	SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_racket_sx, g_racket_sx, b_racket_sx : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -126,19 +129,19 @@ BEGIN
 
 	racket_left_portmap : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
-		x_pixel_ref => left_limit + 2, y_pixel_ref => y_pixel_ref,
+		x_pixel_ref => x_ref_left_racket, y_pixel_ref => y_ref_left_racket,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
-		top_limit => top_limit, bottom_limit => bottom_limit,
+		top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
 		flag => pixel_on_racket_left
 	);
 
 	racket_right_portmap : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
-		x_pixel_ref => right_limit - 10 - 2, y_pixel_ref => y_pixel_ref,
+		x_pixel_ref => x_ref_right_racket, y_pixel_ref => y_ref_right_racket,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(1)), button_down => NOT(KEY(0)),
-		top_limit => top_limit, bottom_limit => bottom_limit,
+		top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => right_limit - 10 - 2,
 		flag => pixel_on_racket_right
 	);
 
@@ -147,6 +150,8 @@ BEGIN
 		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		right_limit => right_limit, left_limit => left_limit, top_limit => top_limit, bottom_limit => bottom_limit,
+		y_racket_left => y_ref_left_racket, y_racket_right => y_ref_right_racket, 
+		x_racket_left => x_ref_left_racket, x_racket_right => x_ref_right_racket,
 		flag => pixel_on_ball
 	);
 
