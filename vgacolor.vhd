@@ -57,6 +57,17 @@ ARCHITECTURE behavior OF vgacolor IS
 			y_pixel_ref : BUFFER INTEGER;
 			xscan, yscan : IN INTEGER;
 			button_up, button_down : IN STD_LOGIC;
+			top_limit, bottom_limit : IN INTEGER;
+			flag : OUT STD_LOGIC
+		);
+	END COMPONENT;
+
+	COMPONENT ball IS
+		PORT (
+			clk, rstn : IN STD_LOGIC;
+			x_pixel_ref, y_pixel_ref : BUFFER INTEGER;
+			xscan, yscan : IN INTEGER;
+			right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
 			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
@@ -74,7 +85,9 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL r_racket_sx, g_racket_sx, b_racket_sx : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL r_racket_dx, g_racket_dx, b_racket_dx : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
-	SIGNAL pixel_on, pixel_on_field, pixel_on_racket_left, pixel_on_racket_right : STD_LOGIC;
+	SIGNAL pixel_on, pixel_on_field, pixel_on_racket_left, pixel_on_racket_right, pixel_on_ball : STD_LOGIC;
+
+	SIGNAL right_limit, left_limit, top_limit, bottom_limit : INTEGER;
 
 BEGIN
 
@@ -97,6 +110,7 @@ BEGIN
 	field_portmap : field PORT MAP(
 		clk => clock25, rstn => RSTn,
 		xscan => hpos, yscan => vpos,
+		right_limit => right_limit, left_limit => left_limit, top_limit => top_limit, bottom_limit => bottom_limit,
 		flag => pixel_on_field
 		--		red => r_field, green => g_field, blue => b_field
 	);
@@ -112,21 +126,31 @@ BEGIN
 
 	racket_left_portmap : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
-		x_pixel_ref => 37, y_pixel_ref => y_pixel_ref,
+		x_pixel_ref => left_limit + 2, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
+		top_limit => top_limit, bottom_limit => bottom_limit,
 		flag => pixel_on_racket_left
 	);
 
 	racket_right_portmap : racket PORT MAP(
 		clk => clock25, rstn => RSTn,
-		x_pixel_ref => 593, y_pixel_ref => y_pixel_ref,
+		x_pixel_ref => right_limit - 10 - 2, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(1)), button_down => NOT(KEY(0)),
+		top_limit => top_limit, bottom_limit => bottom_limit,
 		flag => pixel_on_racket_right
 	);
 
-	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right;
+	ball_portmap : ball PORT MAP(
+		clk => clock25, rstn => RSTn,
+		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
+		xscan => hpos, yscan => vpos,
+		right_limit => right_limit, left_limit => left_limit, top_limit => top_limit, bottom_limit => bottom_limit,
+		flag => pixel_on_ball
+	);
+
+	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right OR pixel_on_ball;
 
 	display_all : PROCESS (clock25, RSTn)
 	BEGIN

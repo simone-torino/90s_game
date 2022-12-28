@@ -9,6 +9,7 @@ ENTITY racket IS
         y_pixel_ref : BUFFER INTEGER;
         xscan, yscan : IN INTEGER;
         button_up, button_down : IN STD_LOGIC;
+        top_limit, bottom_limit : IN INTEGER;
         flag : OUT STD_LOGIC
         --        red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
     );
@@ -75,12 +76,12 @@ BEGIN
             y_pixel_ref <= 65 + 190 - (y_dim/2);
         ELSIF (clk_ref'event AND clk_ref = '1') THEN
             IF (button_up = '1') THEN
-                IF (y_pixel_ref > y_min) THEN
+                IF (y_pixel_ref > top_limit) THEN
                     y_pixel_ref <= y_pixel_ref - 1;
                 END IF;
             END IF;
             IF (button_down = '1') THEN
-                IF (y_pixel_ref + y_dim < y_MAX) THEN
+                IF (y_pixel_ref + y_dim < bottom_limit) THEN
                     y_pixel_ref <= y_pixel_ref + 1;
                 END IF;
             END IF;
