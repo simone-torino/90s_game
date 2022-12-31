@@ -10,6 +10,8 @@ ENTITY vgacolor IS
 		VGA_R, VGA_B, VGA_G : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		VGA_CLK, VGA_SYNC_N, VGA_BLANK_N : OUT STD_LOGIC;
 		VGA_VS, VGA_HS : OUT STD_LOGIC;
+		HEX0 : OUT STD_LOGIC_VECTOR(0 TO 6);
+		HEX5 : OUT STD_LOGIC_VECTOR(0 TO 6);
 		SW : IN STD_LOGIC_VECTOR(9 DOWNTO 9)
 	);
 END vgacolor;
@@ -69,19 +71,30 @@ ARCHITECTURE behavior OF vgacolor IS
 			xscan, yscan : IN INTEGER;
 			right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
 			y_racket_left, y_racket_right, x_racket_left, x_racket_right : IN INTEGER;
-			flag : OUT STD_LOGIC
+			flag : OUT STD_LOGIC;
+			player_dx_gol : OUT STD_LOGIC;
+			player_sx_gol : OUT STD_LOGIC
+		);
+	END COMPONENT;
+
+	COMPONENT scoreboard IS
+		PORT (
+			rstn : IN STD_LOGIC;
+			player_dx_gol, player_sx_gol : IN STD_LOGIC;
+			seg_dx : OUT STD_LOGIC_VECTOR (0 TO 6);
+			seg_sx : OUT STD_LOGIC_VECTOR (0 TO 6)
 		);
 	END COMPONENT;
 
 	SIGNAL RSTn : STD_LOGIC;
 	SIGNAL hpos, vpos : INTEGER;
 	SIGNAL hsync, vsync : STD_LOGIC;
-	SIGNAL clock25 : STD_LOGIC := '0';
+	SIGNAL clock25 : STD_LOGIC;
 	SIGNAL locked : STD_LOGIC;
 
 	SIGNAL y_ref_right_racket, y_ref_left_racket : INTEGER;
 	SIGNAL x_ref_right_racket, x_ref_left_racket : INTEGER;
-	
+
 	SIGNAL x_pixel_ref, y_pixel_ref : INTEGER;
 
 	SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -91,6 +104,8 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL pixel_on, pixel_on_field, pixel_on_racket_left, pixel_on_racket_right, pixel_on_ball : STD_LOGIC;
 
 	SIGNAL right_limit, left_limit, top_limit, bottom_limit : INTEGER;
+
+	SIGNAL player_dx_gol, player_sx_gol : STD_LOGIC;
 
 BEGIN
 
@@ -150,9 +165,16 @@ BEGIN
 		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
 		xscan => hpos, yscan => vpos,
 		right_limit => right_limit, left_limit => left_limit, top_limit => top_limit, bottom_limit => bottom_limit,
-		y_racket_left => y_ref_left_racket, y_racket_right => y_ref_right_racket, 
+		y_racket_left => y_ref_left_racket, y_racket_right => y_ref_right_racket,
 		x_racket_left => x_ref_left_racket, x_racket_right => x_ref_right_racket,
-		flag => pixel_on_ball
+		flag => pixel_on_ball,
+		player_dx_gol => player_dx_gol, player_sx_gol => player_sx_gol
+	);
+
+	scoreboard_portmap : scoreboard PORT MAP(
+		rstn => RSTn,
+		player_dx_gol => player_dx_gol, player_sx_gol => player_sx_gol,
+		seg_dx => HEX0, seg_sx => HEX5
 	);
 
 	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right OR pixel_on_ball;
