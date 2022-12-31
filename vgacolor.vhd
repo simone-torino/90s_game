@@ -177,7 +177,7 @@ BEGIN
 		seg_dx => HEX0, seg_sx => HEX5
 	);
 
-	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right OR pixel_on_ball;
+	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right;
 
 	display_all : PROCESS (clock25, RSTn)
 	BEGIN
@@ -186,7 +186,11 @@ BEGIN
 			VGA_G <= (OTHERS => '0');
 			VGA_B <= (OTHERS => '0');
 		ELSIF (clock25'event AND clock25 = '1') THEN
-			IF (pixel_on = '1') THEN
+			IF (pixel_on_ball = '1') THEN
+				VGA_R <= (OTHERS => '0');
+				VGA_G <= (OTHERS => '1');
+				VGA_B <= (OTHERS => '0');
+			ELSIF (pixel_on = '1') THEN
 				VGA_R <= (OTHERS => '1');
 				VGA_G <= (OTHERS => '1');
 				VGA_B <= (OTHERS => '1');
