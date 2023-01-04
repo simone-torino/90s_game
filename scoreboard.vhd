@@ -6,6 +6,7 @@ ENTITY scoreboard IS
     PORT (
         rstn : IN STD_LOGIC;
         player_dx_gol, player_sx_gol : IN STD_LOGIC;
+        game_end : OUT STD_LOGIC;
         seg_dx : OUT STD_LOGIC_VECTOR (0 TO 6);
         seg_sx : OUT STD_LOGIC_VECTOR (0 TO 6)
     );
@@ -14,6 +15,7 @@ END scoreboard;
 ARCHITECTURE behavioral OF scoreboard IS
 
     SIGNAL score_dx, score_sx : INTEGER;
+    SIGNAL game_end_dx, game_end_sx : STD_LOGIC;
 
 BEGIN
 
@@ -21,11 +23,13 @@ BEGIN
     BEGIN
         IF (rstn = '0') THEN
             score_dx <= 0;
+            game_end_dx <= '0';
         ELSIF (player_dx_gol'event AND player_dx_gol = '1') THEN
-            IF (score_dx < 9) THEN
+            IF (score_dx < 5) THEN
                 score_dx <= score_dx + 1;
             ELSE
                 score_dx <= 0;
+                game_end_dx <= '1';
             END IF;
         END IF;
     END PROCESS;
@@ -34,14 +38,18 @@ BEGIN
     BEGIN
         IF (rstn = '0') THEN
             score_sx <= 0;
+            game_end_sx <= '0';
         ELSIF (player_sx_gol'event AND player_sx_gol = '1') THEN
-            IF (score_sx < 9) THEN
+            IF (score_sx < 5) THEN
                 score_sx <= score_sx + 1;
             ELSE
                 score_sx <= 0;
+                game_end_sx <= '1';
             END IF;
         END IF;
     END PROCESS;
+
+    game_end <= game_end_sx OR game_end_dx;
 
     display_dx_decoder : PROCESS (score_dx)
     BEGIN

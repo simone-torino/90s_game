@@ -10,6 +10,10 @@ ENTITY racket IS
         xscan, yscan : IN INTEGER;
         button_up, button_down : IN STD_LOGIC;
         top_limit, bottom_limit, lateral_limit : IN INTEGER;
+        en_one_player : IN STD_LOGIC;
+        en_difficulty : IN INTEGER;
+        hm_ball_tracking : IN INTEGER;
+        hm_flag : IN STD_LOGIC;
         flag : OUT STD_LOGIC
     );
 END racket;
@@ -24,6 +28,7 @@ ARCHITECTURE behavior OF racket IS
     SIGNAL y_up, y_down : INTEGER;
     SIGNAL cnt : INTEGER;
     SIGNAL clk_ref : STD_LOGIC;
+    SIGNAL direction : STD_LOGIC;
 
 BEGIN
     -- value to draw racket
@@ -74,18 +79,55 @@ BEGIN
         IF (rstn = '0') THEN
             x_pixel_ref <= lateral_limit;
             y_pixel_ref <= 65 + 190 - (y_dim/2);
+            direction <= '1';
         ELSIF (clk_ref'event AND clk_ref = '1') THEN
-            IF (button_up = '1') THEN
-                IF (y_pixel_ref > top_limit) THEN
-                    y_pixel_ref <= y_pixel_ref - 1;
+            IF (en_one_player = '0') THEN
+                IF (button_up = '1') THEN
+                    IF (y_pixel_ref > top_limit) THEN
+                        y_pixel_ref <= y_pixel_ref - 1;
+                    END IF;
                 END IF;
-            END IF;
-            IF (button_down = '1') THEN
-                IF (y_pixel_ref + y_dim < bottom_limit) THEN
-                    y_pixel_ref <= y_pixel_ref + 1;
+                IF (button_down = '1') THEN
+                    IF (y_pixel_ref + y_dim < bottom_limit) THEN
+                        y_pixel_ref <= y_pixel_ref + 1;
+                    END IF;
+                END IF;
+            ELSE --movimento automatizzato
+                IF (en_difficulty = 0) THEN --modalità facile
+                    IF (direction = '1') THEN
+                        y_pixel_ref <= y_pixel_ref + 1;
+                        IF (y_pixel_ref + y_dim >= bottom_limit) THEN
+                            direction <= '0';
+                        END IF;
+                    ELSIF (direction = '0') THEN
+                        y_pixel_ref <= y_pixel_ref - 1;
+                        IF (y_pixel_ref <= top_limit) THEN
+                            direction <= '1';
+                        END IF;
+                    END IF;
+                ELSIF (en_difficulty = 1) THEN --modalità media
+                    IF (direction = '1') THEN
+                        y_pixel_ref <= y_pixel_ref + 3;
+                        IF (y_pixel_ref + y_dim >= bottom_limit) THEN
+                            direction <= '0';
+                        END IF;
+                    ELSIF (direction = '0') THEN
+                        y_pixel_ref <= y_pixel_ref - 3;
+                        IF (y_pixel_ref <= top_limit) THEN
+                            direction <= '1';
+                        END IF;
+                    END IF;
+                ELSE --modalità difficile
+                    IF (hm_flag = '1') THEN
+                        IF (y_pixel_ref + y_dim < hm_ball_tracking) THEN
+                            y_pixel_ref <= y_pixel_ref + 1;
+                        ELSIF (y_pixel_ref > hm_ball_tracking) THEN
+                            y_pixel_ref <= y_pixel_ref - 1;
+                        END IF;
+                    END IF;
                 END IF;
             END IF;
         END IF;
     END PROCESS;
 
-END behavior;
+    END behavior;

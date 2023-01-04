@@ -60,6 +60,10 @@ ARCHITECTURE behavior OF vgacolor IS
 			xscan, yscan : IN INTEGER;
 			button_up, button_down : IN STD_LOGIC;
 			top_limit, bottom_limit, lateral_limit : IN INTEGER;
+			en_one_player : IN STD_LOGIC;
+			en_difficulty : IN INTEGER;
+			hm_ball_tracking : IN INTEGER;
+			hm_flag : IN STD_LOGIC;
 			flag : OUT STD_LOGIC
 		);
 	END COMPONENT;
@@ -71,6 +75,8 @@ ARCHITECTURE behavior OF vgacolor IS
 			xscan, yscan : IN INTEGER;
 			right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
 			y_racket_left, y_racket_right, x_racket_left, x_racket_right : IN INTEGER;
+			hm_flag : OUT STD_LOGIC; --hard mode flag per muovere la racchetta avversaria
+			hm_ball_tracking : OUT INTEGER;
 			flag : OUT STD_LOGIC;
 			player_dx_gol : OUT STD_LOGIC;
 			player_sx_gol : OUT STD_LOGIC
@@ -81,6 +87,7 @@ ARCHITECTURE behavior OF vgacolor IS
 		PORT (
 			rstn : IN STD_LOGIC;
 			player_dx_gol, player_sx_gol : IN STD_LOGIC;
+			game_end : OUT STD_LOGIC;
 			seg_dx : OUT STD_LOGIC_VECTOR (0 TO 6);
 			seg_sx : OUT STD_LOGIC_VECTOR (0 TO 6)
 		);
@@ -106,6 +113,13 @@ ARCHITECTURE behavior OF vgacolor IS
 	SIGNAL right_limit, left_limit, top_limit, bottom_limit : INTEGER;
 
 	SIGNAL player_dx_gol, player_sx_gol : STD_LOGIC;
+
+	SIGNAL game_end : STD_LOGIC;
+
+	SIGNAL hm_ball_tracking : INTEGER;
+	SIGNAL hm_flag : STD_LOGIC;
+	SIGNAL en_one_player : STD_LOGIC;
+	SIGNAL en_difficulty : INTEGER;
 
 BEGIN
 
@@ -148,6 +162,8 @@ BEGIN
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
 		top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
+		en_one_player => '1', en_difficulty => 2, --da modificare en_one_player in seguito
+		hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
 		flag => pixel_on_racket_left
 	);
 
@@ -157,6 +173,8 @@ BEGIN
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(1)), button_down => NOT(KEY(0)),
 		top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => right_limit - 10 - 2,
+		en_one_player => '0', en_difficulty => en_difficulty,
+		hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
 		flag => pixel_on_racket_right
 	);
 
@@ -174,6 +192,7 @@ BEGIN
 	scoreboard_portmap : scoreboard PORT MAP(
 		rstn => RSTn,
 		player_dx_gol => player_dx_gol, player_sx_gol => player_sx_gol,
+		game_end => game_end,
 		seg_dx => HEX0, seg_sx => HEX5
 	);
 
