@@ -58,6 +58,7 @@ ARCHITECTURE behavior OF top_level IS
             hpos, vpos : IN INTEGER;
             HEX0 : OUT STD_LOGIC_VECTOR(0 TO 6);
             HEX5 : OUT STD_LOGIC_VECTOR(0 TO 6);
+            end_game : OUT STD_LOGIC;
             pixel_on, pixel_on_racket_left, pixel_on_racket_right : OUT STD_LOGIC
         );
     END COMPONENT;
@@ -68,27 +69,9 @@ ARCHITECTURE behavior OF top_level IS
     SIGNAL clock25 : STD_LOGIC;
     SIGNAL locked : STD_LOGIC;
 
-    SIGNAL y_ref_right_racket, y_ref_left_racket : INTEGER;
-    SIGNAL x_ref_right_racket, x_ref_left_racket : INTEGER;
+    SIGNAL pixel_on, pixel_on_racket_left, pixel_on_racket_right : STD_LOGIC;
 
-    SIGNAL x_pixel_ref, y_pixel_ref : INTEGER;
-
-    SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL r_racket_sx, g_racket_sx, b_racket_sx : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL r_racket_dx, g_racket_dx, b_racket_dx : STD_LOGIC_VECTOR(7 DOWNTO 0);
-
-    SIGNAL pixel_on, pixel_on_field, pixel_on_racket_left, pixel_on_racket_right, pixel_on_ball : STD_LOGIC;
-
-    SIGNAL right_limit, left_limit, top_limit, bottom_limit : INTEGER;
-
-    SIGNAL player_dx_gol, player_sx_gol : STD_LOGIC;
-
-    SIGNAL game_end : STD_LOGIC;
-
-    SIGNAL hm_ball_tracking : INTEGER;
-    SIGNAL hm_flag : STD_LOGIC;
-    SIGNAL en_one_player : STD_LOGIC;
-    SIGNAL en_difficulty : INTEGER;
+    SIGNAL end_game : STD_LOGIC;
 
 BEGIN
 
@@ -113,6 +96,7 @@ BEGIN
         KEY => KEY,
         hpos => hpos, vpos => vpos,
         HEX0 => HEX0, HEX5 => HEX5,
+        end_game => end_game,
         pixel_on => pixel_on, pixel_on_racket_left => pixel_on_racket_left, pixel_on_racket_right => pixel_on_racket_right
     );
 

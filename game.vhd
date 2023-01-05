@@ -9,6 +9,7 @@ ENTITY game IS
         hpos, vpos : IN INTEGER;
         HEX0 : OUT STD_LOGIC_VECTOR(0 TO 6);
         HEX5 : OUT STD_LOGIC_VECTOR(0 TO 6);
+        end_game : OUT STD_LOGIC;
         pixel_on, pixel_on_racket_left, pixel_on_racket_right : OUT STD_LOGIC
     );
 END game;
@@ -80,8 +81,6 @@ ARCHITECTURE behavior OF game IS
 
     SIGNAL player_dx_gol, player_sx_gol : STD_LOGIC;
 
-    SIGNAL game_end : STD_LOGIC;
-
     SIGNAL hm_ball_tracking : INTEGER;
     SIGNAL hm_flag : STD_LOGIC;
     SIGNAL en_one_player : STD_LOGIC;
@@ -133,7 +132,7 @@ BEGIN
     scoreboard_portmap : scoreboard PORT MAP(
         rstn => rstn,
         player_dx_gol => player_dx_gol, player_sx_gol => player_sx_gol,
-        game_end => game_end,
+        game_end => end_game,
         seg_dx => HEX0, seg_sx => HEX5
     );
 
