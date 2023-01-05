@@ -162,7 +162,7 @@ BEGIN
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
 		top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
-		en_one_player => '0', en_difficulty => 1, --da modificare en_one_player in seguito
+		en_one_player => '1', en_difficulty => 2, --da modificare en_one_player in seguito
 		hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
 		flag => pixel_on_racket_left
 	);
