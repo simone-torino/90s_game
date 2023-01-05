@@ -162,7 +162,7 @@ BEGIN
 		xscan => hpos, yscan => vpos,
 		button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
 		top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
-		en_one_player => '1', en_difficulty => 2, --da modificare en_one_player in seguito
+		en_one_player => '0', en_difficulty => 1, --da modificare en_one_player in seguito
 		hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
 		flag => pixel_on_racket_left
 	);
@@ -185,6 +185,7 @@ BEGIN
 		right_limit => right_limit, left_limit => left_limit, top_limit => top_limit, bottom_limit => bottom_limit,
 		y_racket_left => y_ref_left_racket, y_racket_right => y_ref_right_racket,
 		x_racket_left => x_ref_left_racket, x_racket_right => x_ref_right_racket,
+		hm_flag => hm_flag, hm_ball_tracking => hm_ball_tracking,
 		flag => pixel_on_ball,
 		player_dx_gol => player_dx_gol, player_sx_gol => player_sx_gol
 	);
@@ -196,7 +197,7 @@ BEGIN
 		seg_dx => HEX0, seg_sx => HEX5
 	);
 
-	pixel_on <= pixel_on_field OR pixel_on_racket_left OR pixel_on_racket_right;
+	pixel_on <= pixel_on_field OR pixel_on_ball;
 
 	display_all : PROCESS (clock25, RSTn)
 	BEGIN
@@ -205,10 +206,14 @@ BEGIN
 			VGA_G <= (OTHERS => '0');
 			VGA_B <= (OTHERS => '0');
 		ELSIF (clock25'event AND clock25 = '1') THEN
-			IF (pixel_on_ball = '1') THEN
+			IF (pixel_on_racket_left = '1') THEN
+				VGA_R <= (OTHERS => '1');
+				VGA_G <= (OTHERS => '0');
+				VGA_B <= (OTHERS => '0');
+			ELSIF (pixel_on_racket_right = '1') THEN
 				VGA_R <= (OTHERS => '0');
 				VGA_G <= (OTHERS => '1');
-				VGA_B <= (OTHERS => '0');
+				VGA_B <= (OTHERS => '1');
 			ELSIF (pixel_on = '1') THEN
 				VGA_R <= (OTHERS => '1');
 				VGA_G <= (OTHERS => '1');
