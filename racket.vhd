@@ -11,7 +11,7 @@ ENTITY racket IS
         button_up, button_down : IN STD_LOGIC;
         top_limit, bottom_limit, lateral_limit : IN INTEGER;
         en_one_player : IN STD_LOGIC;
-        en_difficulty : IN INTEGER;
+        en_difficulty : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         hm_ball_tracking : IN INTEGER;
         hm_flag : IN STD_LOGIC;
         flag : OUT STD_LOGIC
@@ -84,7 +84,7 @@ BEGIN
                     END IF;
                 END IF;
             ELSE --movimento automatizzato
-                IF (en_difficulty = 0) THEN --modalità facile
+                IF (en_difficulty = "00") THEN --modalità facile
                     IF (direction = '1') THEN
                         y_pixel_ref <= y_pixel_ref + 1;
                         IF (y_pixel_ref + y_dim >= bottom_limit) THEN
@@ -96,14 +96,14 @@ BEGIN
                             direction <= '1';
                         END IF;
                     END IF;
-                ELSIF (en_difficulty = 1) THEN --modalità media
+                ELSIF (en_difficulty = "01") THEN --modalità media
                     IF (direction = '1') THEN
-                        y_pixel_ref <= y_pixel_ref + 3;
+                        y_pixel_ref <= y_pixel_ref + 5;
                         IF (y_pixel_ref + y_dim >= bottom_limit) THEN
                             direction <= '0';
                         END IF;
                     ELSIF (direction = '0') THEN
-                        y_pixel_ref <= y_pixel_ref - 3;
+                        y_pixel_ref <= y_pixel_ref - 5;
                         IF (y_pixel_ref <= top_limit) THEN
                             direction <= '1';
                         END IF;
@@ -121,4 +121,4 @@ BEGIN
         END IF;
     END PROCESS;
 
-    END behavior;
+END behavior;

@@ -34,7 +34,7 @@ ENTITY Pixel_On_Text IS
 	);
 	PORT (
 		clk : IN STD_LOGIC;
-		displayText : IN STRING (1 TO textLength) := (OTHERS => NUL);
+		displayText : IN STRING (1 TO textLength);
 		-- top left corner of the text
 		x : IN INTEGER;
 		y : IN INTEGER;

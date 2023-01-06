@@ -5,11 +5,11 @@ USE ieee.numeric_std.ALL;
 ENTITY game IS
     PORT (
         clk, rstn : IN STD_LOGIC;
-        button : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+        KEY : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
         hpos, vpos : IN INTEGER;
         choose_diff : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-        score_dx : OUT STD_LOGIC_VECTOR(0 TO 6);
-        score_sx : OUT STD_LOGIC_VECTOR(0 TO 6);
+        HEX0 : OUT STD_LOGIC_VECTOR(0 TO 6);
+        HEX5 : OUT STD_LOGIC_VECTOR(0 TO 6);
         end_game : OUT STD_LOGIC;
         pixel_on, pixel_on_racket_left, pixel_on_racket_right : OUT STD_LOGIC
     );
@@ -85,7 +85,7 @@ ARCHITECTURE behavior OF game IS
     SIGNAL hm_ball_tracking : INTEGER;
     SIGNAL hm_flag : STD_LOGIC;
     SIGNAL en_one_player : STD_LOGIC;
-    SIGNAL en_difficulty : std_logic_vector(1 downto 0);
+    SIGNAL en_difficulty : INTEGER;
 
 BEGIN
 
@@ -100,7 +100,7 @@ BEGIN
         clk => clk, rstn => rstn,
         x_pixel_ref => x_ref_left_racket, y_pixel_ref => y_ref_left_racket,
         xscan => hpos, yscan => vpos,
-        button_up => NOT(button(3)), button_down => NOT(button(2)),
+        button_up => NOT(KEY(3)), button_down => NOT(KEY(2)),
         top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
         en_one_player => '1', en_difficulty => choose_diff, --da modificare en_one_player in seguito
         hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
@@ -111,7 +111,7 @@ BEGIN
         clk => clk, rstn => rstn,
         x_pixel_ref => x_ref_right_racket, y_pixel_ref => y_ref_right_racket,
         xscan => hpos, yscan => vpos,
-        button_up => NOT(button(1)), button_down => NOT(button(0)),
+        button_up => NOT(KEY(1)), button_down => NOT(KEY(0)),
         top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => right_limit - 10 - 2,
         en_one_player => '0', en_difficulty => en_difficulty,
         hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
@@ -134,7 +134,7 @@ BEGIN
         rstn => rstn,
         player_dx_gol => player_dx_gol, player_sx_gol => player_sx_gol,
         game_end => end_game,
-        seg_dx => score_dx, seg_sx => score_sx
+        seg_dx => HEX0, seg_sx => HEX5
     );
 
     pixel_on <= pixel_on_field OR pixel_on_ball;
