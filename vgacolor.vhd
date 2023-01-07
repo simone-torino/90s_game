@@ -33,20 +33,20 @@ ARCHITECTURE behavior OF vgacolor IS
 		);
 	END COMPONENT;
 
-	COMPONENT cube IS
+	COMPONENT Decoder IS
 		PORT (
-			clk, rstn : IN STD_LOGIC;
-			x_pixel_ref, y_pixel_ref : IN INTEGER;
-			xscan, yscan : IN INTEGER;
-			red, green, blue : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-		);
+			row_add : IN INTEGER; --row pixel coordinate
+			column_add : IN INTEGER; --column pixel coordinate
+			address : OUT STD_LOGIC_VECTOR(10 DOWNTO 0) := (OTHERS => '0'));
 	END COMPONENT;
 
-	COMPONENT move_cube IS
+	COMPONENT fontrom IS
 		PORT (
-			clk, rstn : IN STD_LOGIC;
-			button_up, button_down, button_right, button_left : IN STD_LOGIC;
-			x_pixel_ref, y_pixel_ref : BUFFER INTEGER
+			aclr : IN STD_LOGIC := '0';
+			address : IN STD_LOGIC_VECTOR (10 DOWNTO 0);
+			clock : IN STD_LOGIC := '1';
+			rden : IN STD_LOGIC := '1';
+			q : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
 		);
 	END COMPONENT;
 
@@ -68,6 +68,13 @@ ARCHITECTURE behavior OF vgacolor IS
 
 	SIGNAL x_pixel_ref : INTEGER;
 	SIGNAL y_pixel_ref : INTEGER;
+
+	SIGNAL adx : STD_LOGIC_VECTOR(10 DOWNTO 0);
+	SIGNAL text_out : STD_LOGIC_VECTOR (7 DOWNTO 0);
+
+	SIGNAL buffer_r : STD_LOGIC_VECTOR (7 DOWNTO 0);
+	SIGNAL buffer_b : STD_LOGIC_VECTOR (7 DOWNTO 0);
+	SIGNAL buffer_g : STD_LOGIC_VECTOR (7 DOWNTO 0);
 
 BEGIN
 
@@ -145,16 +152,25 @@ BEGIN
 
 	phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(9), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
-	draw_cube : cube PORT MAP(
-		clk => clock25, rstn => RSTn,
-		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
-		xscan => hpos, yscan => vpos,
-		red => VGA_R, green => VGA_G, blue => VGA_B);
+	characterdecoder : Decoder PORT MAP(vpos, hpos, adx);
 
-	cube_moviment : move_cube PORT MAP(
-		clk => clock25, rstn => RSTn,
-		button_up => NOT(KEY(2)), button_down => NOT(KEY(1)),
-		button_right => NOT(KEY(0)), button_left => NOT(KEY(3)),
-		x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref);
+	rom : fontrom PORT MAP(SW(9), adx, clock25, '1', text_out);
+
+	PROCESS (vpos, hpos)
+	BEGIN
+		IF (vpos >= 0 AND hpos >= 0 AND
+			vpos < 480 AND hpos < 640) THEN --qui penso ci vadano i limiti dello schermo ma non sono sicurissimo
+			buffer_r <= text_out;
+			buffer_b <= text_out;
+			buffer_g <= text_out;
+		ELSE
+			buffer_r <= (OTHERS => '0');
+			buffer_b <= (OTHERS => '0');
+			buffer_g <= (OTHERS => '0');
+		END IF;
+	END PROCESS;
+	VGA_R <= buffer_r;
+	VGA_G <= buffer_b;
+	VGA_B <= buffer_g;
 
 END behavior;
