@@ -4,14 +4,13 @@ USE ieee.numeric_std.ALL;
 
 ENTITY racket IS
     PORT (
-        clk, rstn : IN STD_LOGIC;
+        clk, rstn, en : IN STD_LOGIC;
         x_pixel_ref : BUFFER INTEGER;
         y_pixel_ref : BUFFER INTEGER;
         xscan, yscan : IN INTEGER;
         button_up, button_down : IN STD_LOGIC;
         top_limit, bottom_limit, lateral_limit : IN INTEGER;
-        en_one_player : IN STD_LOGIC;
-        en_difficulty : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+        en_mode : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         hm_ball_tracking : IN INTEGER;
         hm_flag : IN STD_LOGIC;
         flag : OUT STD_LOGIC
@@ -42,10 +41,20 @@ BEGIN
         IF (rstn = '0') THEN
             flag <= '0';
         ELSIF (clk'event AND clk = '1') THEN
-            IF (xscan >= x_left AND xscan <= x_right AND yscan >= y_up AND yscan <= y_down) THEN
-                flag <= '1';
-            ELSE
-                flag <= '0';
+            IF (en = '1') THEN
+                IF (en_mode = "00") THEN
+                    IF (xscan >= x_left AND xscan <= x_right AND yscan >= y_min AND yscan <= y_MAX) THEN
+                        flag <= '1';
+                    ELSE
+                        flag <= '0';
+                    END IF;
+                ELSE
+                    IF (xscan >= x_left AND xscan <= x_right AND yscan >= y_up AND yscan <= y_down) THEN
+                        flag <= '1';
+                    ELSE
+                        flag <= '0';
+                    END IF;
+                END IF;
             END IF;
         END IF;
     END PROCESS;
@@ -56,11 +65,13 @@ BEGIN
             clk_ref <= '0';
             cnt <= 0;
         ELSIF (clk'event AND clk = '1') THEN
-            IF (cnt < 85000) THEN
-                cnt <= cnt + 1;
-            ELSE
-                cnt <= 0;
-                clk_ref <= NOT(clk_ref);
+            IF (en = '1') THEN
+                IF (cnt < 85000) THEN
+                    cnt <= cnt + 1;
+                ELSE
+                    cnt <= 0;
+                    clk_ref <= NOT(clk_ref);
+                END IF;
             END IF;
         END IF;
     END PROCESS;
@@ -72,43 +83,32 @@ BEGIN
             y_pixel_ref <= 65 + 190 - (y_dim/2);
             direction <= '1';
         ELSIF (clk_ref'event AND clk_ref = '1') THEN
-            IF (en_one_player = '0') THEN
-                IF (button_up = '1') THEN
-                    IF (y_pixel_ref > top_limit) THEN
-                        y_pixel_ref <= y_pixel_ref - 1;
-                    END IF;
-                END IF;
-                IF (button_down = '1') THEN
-                    IF (y_pixel_ref + y_dim < bottom_limit) THEN
-                        y_pixel_ref <= y_pixel_ref + 1;
-                    END IF;
-                END IF;
-            ELSE --movimento automatizzato
-                IF (en_difficulty = "00") THEN --modalità facile
-                    IF (direction = '1') THEN
-                        y_pixel_ref <= y_pixel_ref + 1;
-                        IF (y_pixel_ref + y_dim >= bottom_limit) THEN
-                            direction <= '0';
-                        END IF;
-                    ELSIF (direction = '0') THEN
-                        y_pixel_ref <= y_pixel_ref - 1;
-                        IF (y_pixel_ref <= top_limit) THEN
-                            direction <= '1';
+            IF (en = '1') THEN
+                IF (en_mode = "10") THEN --modalità 2 PLAYERS
+                    IF (button_up = '1') THEN
+                        IF (y_pixel_ref > top_limit) THEN
+                            y_pixel_ref <= y_pixel_ref - 1;
                         END IF;
                     END IF;
-                ELSIF (en_difficulty = "01") THEN --modalità media
-                    IF (direction = '1') THEN
-                        y_pixel_ref <= y_pixel_ref + 5;
-                        IF (y_pixel_ref + y_dim >= bottom_limit) THEN
-                            direction <= '0';
-                        END IF;
-                    ELSIF (direction = '0') THEN
-                        y_pixel_ref <= y_pixel_ref - 5;
-                        IF (y_pixel_ref <= top_limit) THEN
-                            direction <= '1';
+                    IF (button_down = '1') THEN
+                        IF (y_pixel_ref + y_dim < bottom_limit) THEN
+                            y_pixel_ref <= y_pixel_ref + 1;
                         END IF;
                     END IF;
-                ELSE --modalità difficile
+                ELSIF (en_mode = "00") THEN --modalità WALL (da creare)
+                    -- no moviment
+                    -- IF (direction = '1') THEN
+                    --     y_pixel_ref <= y_pixel_ref + 5;
+                    --     IF (y_pixel_ref + y_dim >= bottom_limit) THEN
+                    --         direction <= '0';
+                    --     END IF;
+                    -- ELSIF (direction = '0') THEN
+                    --     y_pixel_ref <= y_pixel_ref - 5;
+                    --     IF (y_pixel_ref <= top_limit) THEN
+                    --         direction <= '1';
+                    --     END IF;
+                    -- END IF;
+                ELSIF (en_mode = "01") THEN --modalità CPU
                     IF (hm_flag = '1') THEN
                         IF (y_pixel_ref + y_dim < hm_ball_tracking) THEN
                             y_pixel_ref <= y_pixel_ref + 1;

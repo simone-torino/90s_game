@@ -6,7 +6,7 @@ ENTITY vgacolor IS
 
 	PORT (
 		clk, rstn : IN STD_LOGIC;
-		pixel_on, pixel_on_racket_left, pixel_on_racket_right : IN STD_LOGIC;
+		pixel_on, pixel_on_racket_left, pixel_on_racket_right, pixel_on_menu : IN STD_LOGIC;
 		red, blue, green : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 	);
 END vgacolor;
@@ -30,7 +30,7 @@ BEGIN
 				red <= (OTHERS => '0');
 				green <= (OTHERS => '1');
 				blue <= (OTHERS => '1');
-			ELSIF (pixel_on = '1') THEN
+			ELSIF (pixel_on = '1' OR pixel_on_menu = '1') THEN
 				red <= (OTHERS => '1');
 				green <= (OTHERS => '1');
 				blue <= (OTHERS => '1');

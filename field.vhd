@@ -4,7 +4,7 @@ USE ieee.numeric_std.ALL;
 
 ENTITY field IS
     PORT (
-        clk, rstn : IN STD_LOGIC;
+        clk, rstn, en : IN STD_LOGIC;
         xscan, yscan : IN INTEGER;
         right_limit, left_limit, top_limit, bottom_limit : BUFFER INTEGER;
         flag : OUT STD_LOGIC
@@ -24,22 +24,19 @@ BEGIN
     BEGIN
         IF (rstn = '0') THEN
             flag <= '0';
-            --            red <= (OTHERS => '0');
-            --            green <= (OTHERS => '0');
-            --            blue <= (OTHERS => '0');
         ELSIF (clk'event AND clk = '1') THEN
-            IF (xscan >= offset AND xscan <= x_max - offset AND yscan >= offset_top AND yscan <= y_max - offset) THEN
-                --           IF (((xscan >= offset AND xscan <= offset + thickness) OR (xscan >= x_max - offset - thickness AND xscan <= x_max - offset)) OR
-                --                ((yscan >= offset_top AND yscan <= offset_top + thickness) OR (yscan >= y_max - offset - thickness AND yscan <= y_max - offset))) THEN
-                flag <= '1';
-                IF (xscan >= left_limit AND xscan <= right_limit AND yscan >= top_limit AND yscan <= bottom_limit) THEN
-                    flag <= '0';
-                    IF (xscan >= left_limit + ((right_limit - left_limit)/2) - 1 AND xscan <= left_limit + ((right_limit - left_limit)/2) + 1 AND yscan >= top_limit AND yscan <= bottom_limit) THEN
-                        flag <= '1';
+            IF (en = '1') THEN
+                IF (xscan >= offset AND xscan <= x_max - offset AND yscan >= offset_top AND yscan <= y_max - offset) THEN
+                    flag <= '1';
+                    IF (xscan >= left_limit AND xscan <= right_limit AND yscan >= top_limit AND yscan <= bottom_limit) THEN
+                        flag <= '0';
+                        IF (xscan >= left_limit + ((right_limit - left_limit)/2) - 1 AND xscan <= left_limit + ((right_limit - left_limit)/2) + 1 AND yscan >= top_limit AND yscan <= bottom_limit) THEN
+                            flag <= '1';
+                        END IF;
                     END IF;
+                ELSE
+                    flag <= '0';
                 END IF;
-            ELSE
-                flag <= '0';
             END IF;
         END IF;
     END PROCESS;
