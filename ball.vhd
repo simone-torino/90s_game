@@ -46,7 +46,7 @@ BEGIN
             flag <= '0';
         ELSIF (clk'event AND clk = '1') THEN
             IF (en = '1') THEN
-                IF (xscan >= x_left AND xscan <= x_right AND yscan >= y_up AND yscan <= y_down) THEN
+                IF (480*yscan - yscan*yscan + 640*xscan - xscan*xscan > 160000 - 5*5) THEN
                     flag <= '1';
                 ELSE
                     flag <= '0';
