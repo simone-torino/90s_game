@@ -6,7 +6,8 @@ ENTITY text_management IS
     PORT (
         clk, rstn : IN STD_LOGIC;
         hpos, vpos : IN INTEGER;
-        en_welcome_page, en_choose_mod, en_game_over : IN STD_LOGIC;
+        en_welcome_page, en_choose_mod, en_game_over, en_game : IN STD_LOGIC;
+        choose_mode : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
         pixel_on : OUT STD_LOGIC
     );
 END text_management;
@@ -32,6 +33,7 @@ ARCHITECTURE behavior OF text_management IS
     END COMPONENT;
 
     SIGNAL pixel_on_pong, pixel_on_start, pixel_on_choose, pixel_on_list, pixel_on_game_over, pixel_on_restart : STD_LOGIC;
+    SIGNAL pixel_on_wall, pixel_on_cpu, pixel_on_two_players: STD_LOGIC;
 
 BEGIN
 
@@ -39,7 +41,7 @@ BEGIN
     PORT MAP(
         clk => clk,
         displayText => "PONG GAME",
-        x => 316, y => 160,
+        x => 295, y => 160,
         horzCoord => hpos,
         vertCoord => vpos,
         pixel => pixel_on_pong
@@ -49,7 +51,7 @@ BEGIN
     PORT MAP(
         clk => clk,
         displayText => "Press KEY3 to start the game",
-        x => 306, y => 320,
+        x => 240, y => 320,
         horzCoord => hpos,
         vertCoord => vpos,
         pixel => pixel_on_start
@@ -59,7 +61,7 @@ BEGIN
     PORT MAP(
         clk => clk,
         displayText => "Choose the game mode:",
-        x => 250, y => 160,
+        x => 240, y => 160,
         horzCoord => hpos,
         vertCoord => vpos,
         pixel => pixel_on_choose
@@ -69,7 +71,7 @@ BEGIN
     PORT MAP(
         clk => clk,
         displayText => "WALL mode (KEY0)     CPU mode (KEY1)     2 PLAYERS mode (KEY2)",
-        x => 100, y => 320,
+        x => 90, y => 320,
         horzCoord => hpos,
         vertCoord => vpos,
         pixel => pixel_on_list
@@ -79,7 +81,7 @@ BEGIN
     PORT MAP(
         clk => clk,
         displayText => "GAME OVER",
-        x => 316, y => 160,
+        x => 295, y => 160,
         horzCoord => hpos,
         vertCoord => vpos,
         pixel => pixel_on_game_over
@@ -95,6 +97,36 @@ BEGIN
         pixel => pixel_on_restart
     );
 
+    wall_mode : Pixel_On_Text GENERIC MAP(textLength => 9)
+    PORT MAP(
+        clk => clk,
+        displayText => "WALL mode",
+        x => 295, y => 30,
+        horzCoord => hpos,
+        vertCoord => vpos,
+        pixel => pixel_on_wall
+    );
+
+    cpu_mode : Pixel_On_Text GENERIC MAP(textLength => 8)
+    PORT MAP(
+        clk => clk,
+        displayText => "CPU mode",
+        x => 295, y => 30,
+        horzCoord => hpos,
+        vertCoord => vpos,
+        pixel => pixel_on_cpu
+    );
+
+    two_players_mode : Pixel_On_Text GENERIC MAP(textLength => 16)
+    PORT MAP(
+        clk => clk,
+        displayText => "TWO PLAYERS mode",
+        x => 280, y => 30,
+        horzCoord => hpos,
+        vertCoord => vpos,
+        pixel => pixel_on_two_players
+    );
+
     enable_text : PROCESS (en_welcome_page, en_choose_mod)
     BEGIN
         IF (en_welcome_page = '1') THEN
@@ -103,6 +135,14 @@ BEGIN
             pixel_on <= pixel_on_choose OR pixel_on_list;
         ELSIF (en_game_over = '1') THEN
             pixel_on <= pixel_on_game_over OR pixel_on_restart;
+        ELSIF (en_game = '1') THEN
+            IF (choose_mode = "00") THEN
+                pixel_on <= pixel_on_wall;
+            ELSIF (choose_mode = "01") THEN
+                pixel_on <= pixel_on_cpu;
+            ELSIF (choose_mode = "10") THEN
+                pixel_on <= pixel_on_two_players;
+            END IF;
         END IF;
     END PROCESS;
 

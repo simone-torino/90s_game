@@ -68,7 +68,8 @@ ARCHITECTURE behavior OF top_level IS
         PORT (
             clk, rstn : IN STD_LOGIC;
             hpos, vpos : IN INTEGER;
-            en_welcome_page, en_choose_mod, en_game_over : IN STD_LOGIC;
+            en_welcome_page, en_choose_mod, en_game_over, en_game : IN STD_LOGIC;
+            choose_mode : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
             pixel_on : OUT STD_LOGIC
         );
     END COMPONENT;
@@ -204,6 +205,7 @@ BEGIN
         clk => clock25, rstn => RSTn,
         hpos => hpos, vpos => vpos,
         en_welcome_page => en_welcome_page, en_choose_mod => en_choose_mod, en_game_over => en_game_over,
+        en_game => en_game, choose_mode => mode,
         pixel_on => pixel_on_text
     );
 
