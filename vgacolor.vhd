@@ -2,8 +2,8 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
+--component to manage the VGA outputs
 ENTITY vgacolor IS
-
 	PORT (
 		clk, rstn : IN STD_LOGIC;
 		pixel_on, pixel_on_racket_left, pixel_on_racket_right, pixel_on_menu : IN STD_LOGIC;
@@ -15,6 +15,7 @@ ARCHITECTURE behavior OF vgacolor IS
 
 BEGIN
 
+	--turn on pixels (with color rackets) to view images on the screen
 	display_all : PROCESS (clk, rstn)
 	BEGIN
 		IF (rstn = '0') THEN

@@ -74,6 +74,7 @@ ARCHITECTURE behavior OF top_level IS
         );
     END COMPONENT;
 
+    -- signals declaration
     SIGNAL RESETn, rstn : STD_LOGIC;
     SIGNAL hpos, vpos : INTEGER;
     SIGNAL hsync, vsync : STD_LOGIC;
@@ -85,14 +86,19 @@ ARCHITECTURE behavior OF top_level IS
     SIGNAL en_game, en_welcome_page, en_game_over, en_choose_mod, end_game : STD_LOGIC;
     SIGNAL mode : STD_LOGIC_VECTOR (1 DOWNTO 0);
 
+    --FSM state declaration
     TYPE state_type IS (idle, main_menu, mode_selection, wall_mode, cpu_mode, two_players_mode, game_over);
     SIGNAL state : state_type;
 
 BEGIN
-
+    --VGA signal that must be active
     VGA_SYNC_N <= '1';
     VGA_BLANK_N <= '1';
+
+    --system reset
     RESETn <= NOT(SW(0)) AND LOCKED;
+    
+    --FSM state transition management
     STATE_TRANSITION : PROCESS (clock25, RESETn)
     BEGIN
         IF (RESETn = '0') THEN
@@ -147,6 +153,7 @@ BEGIN
         END IF;
     END PROCESS;
 
+    --signal management in the FSM states
     SIGNAL_PROCESS : PROCESS (state)
     BEGIN
         en_game <= '0';
@@ -170,6 +177,7 @@ BEGIN
         END CASE;
     END PROCESS;
 
+    --components port map
     vga_signals : vga_management PORT MAP(
         clk => clock25, rstn => RSTn,
         hs => hsync, vs => vsync,

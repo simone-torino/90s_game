@@ -2,6 +2,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
+--component used to combine all components necessary to play
 ENTITY game IS
     PORT (
         clk, rstn, en : IN STD_LOGIC;
@@ -17,6 +18,7 @@ END game;
 
 ARCHITECTURE behavior OF game IS
 
+    --drow the playground
     COMPONENT field IS
         PORT (
             clk, rstn, en : IN STD_LOGIC;
@@ -26,6 +28,7 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
+    --drow and move the rackets according to the game mode
     COMPONENT racket IS
         PORT (
             clk, rstn, en : IN STD_LOGIC;
@@ -41,6 +44,7 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
+    --drow and manage the ball moviments 
     COMPONENT ball IS
         PORT (
             clk, rstn, en : IN STD_LOGIC;
@@ -57,6 +61,7 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
+    --manage the score on the 7 segments display
     COMPONENT scoreboard IS
         PORT (
             rstn : IN STD_LOGIC;
@@ -68,27 +73,29 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
+    --reference signals for the top-left pixel of right and left racket
     SIGNAL y_ref_right_racket, y_ref_left_racket : INTEGER;
     SIGNAL x_ref_right_racket, x_ref_left_racket : INTEGER;
 
-    SIGNAL x_pixel_ref, y_pixel_ref : INTEGER;
+    --reference signals por the top-left pixel of the ball
+    SIGNAL x_pixel_ref_ball, y_pixel_ref_ball : INTEGER;
 
-    SIGNAL r_field, g_field, b_field : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL r_racket_sx, g_racket_sx, b_racket_sx : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL r_racket_dx, g_racket_dx, b_racket_dx : STD_LOGIC_VECTOR(7 DOWNTO 0);
-
+    --flag referring to pixel to turn on to display field and ball on the screen  
     SIGNAL pixel_on_field, pixel_on_ball : STD_LOGIC;
 
+    --field limits
     SIGNAL right_limit, left_limit, top_limit, bottom_limit : INTEGER;
 
+    --signal to manage points
     SIGNAL player_dx_gol, player_sx_gol : STD_LOGIC;
 
+    --signal to track ball and to active racket moviment for cpu mode
     SIGNAL hm_ball_tracking : INTEGER;
     SIGNAL hm_flag : STD_LOGIC;
-    SIGNAL en_one_player : STD_LOGIC;
-    SIGNAL en_difficulty : STD_LOGIC_VECTOR(1 DOWNTO 0);
 
 BEGIN
+    
+    --components port map
 
     field_portmap : field PORT MAP(
         clk => clk, rstn => rstn, en => en,
@@ -103,7 +110,7 @@ BEGIN
         xscan => hpos, yscan => vpos,
         button_up => NOT(button(3)), button_down => NOT(button(2)),
         top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
-        en_mode => choose_mode, --da modificare en_one_player in seguito
+        en_mode => choose_mode,
         hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
         flag => pixel_on_racket_left
     );
@@ -121,7 +128,7 @@ BEGIN
 
     ball_portmap : ball PORT MAP(
         clk => clk, rstn => rstn, en => en,
-        x_pixel_ref => x_pixel_ref, y_pixel_ref => y_pixel_ref,
+        x_pixel_ref => x_pixel_ref_ball, y_pixel_ref => y_pixel_ref_ball,
         xscan => hpos, yscan => vpos,
         right_limit => right_limit, left_limit => left_limit, top_limit => top_limit, bottom_limit => bottom_limit,
         mode => choose_mode,
@@ -141,6 +148,7 @@ BEGIN
         seg_1 => score_dx1, seg_0 => score_dx0
     );
 
+    --white pixels in game
     pixel_on <= pixel_on_field OR pixel_on_ball;
 
 END behavior;
