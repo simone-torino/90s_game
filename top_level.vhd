@@ -138,19 +138,19 @@ BEGIN
                     END IF;
                 WHEN wall_mode =>
                     IF (end_game = '1') THEN
-                        state <= game_over;
+                        state <= wait_game_over;
                     ELSE
                         state <= wall_mode;
                     END IF;
                 WHEN cpu_mode =>
                     IF (end_game = '1') THEN
-                        state <= game_over;
+                        state <= wait_game_over;
                     ELSE
                         state <= cpu_mode;
                     END IF;
                 WHEN two_players_mode =>
                     IF (end_game = '1') THEN
-                        state <= game_over;
+                        state <= wait_game_over;
                     ELSE
                         state <= two_players_mode;
                     END IF;
