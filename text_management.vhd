@@ -6,7 +6,7 @@ ENTITY text_management IS
     PORT (
         clk, rstn : IN STD_LOGIC;
         hpos, vpos : IN INTEGER;
-        en_welcome_page, en_choose_mod, en_game_over, en_game : IN STD_LOGIC;
+        en_welcome_page, en_choose_mod, en_game_over, en_game, en_wait : IN STD_LOGIC;
         choose_mode : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
         pixel_on : OUT STD_LOGIC
     );
@@ -33,7 +33,7 @@ ARCHITECTURE behavior OF text_management IS
     END COMPONENT;
 
     SIGNAL pixel_on_pong, pixel_on_start, pixel_on_choose, pixel_on_list, pixel_on_game_over, pixel_on_restart : STD_LOGIC;
-    SIGNAL pixel_on_wall, pixel_on_cpu, pixel_on_two_players: STD_LOGIC;
+    SIGNAL pixel_on_wall, pixel_on_cpu, pixel_on_two_players, pixel_on_loading : STD_LOGIC;
 
 BEGIN
 
@@ -127,6 +127,16 @@ BEGIN
         pixel => pixel_on_two_players
     );
 
+    loading : Pixel_On_Text GENERIC MAP(textLength => 10)
+    PORT MAP(
+        clk => clk,
+        displayText => "Loading...",
+        x => 295, y => 160,
+        horzCoord => hpos,
+        vertCoord => vpos,
+        pixel => pixel_on_loading
+    );
+
     enable_text : PROCESS (en_welcome_page, en_choose_mod)
     BEGIN
         IF (en_welcome_page = '1') THEN
@@ -135,6 +145,8 @@ BEGIN
             pixel_on <= pixel_on_choose OR pixel_on_list;
         ELSIF (en_game_over = '1') THEN
             pixel_on <= pixel_on_game_over OR pixel_on_restart;
+        ELSIF (en_wait = '1') THEN
+            pixel_on <= pixel_on_loading;
         ELSIF (en_game = '1') THEN
             IF (choose_mode = "00") THEN
                 pixel_on <= pixel_on_wall;
