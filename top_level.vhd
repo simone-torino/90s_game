@@ -162,7 +162,7 @@ BEGIN
                     END IF;
                 WHEN game_over =>
                     IF (KEY(0) = '0') THEN
-                        state <= idle;
+                        state <= wait_idle;
                     ELSE
                         state <= game_over;
                     END IF;
