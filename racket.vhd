@@ -97,17 +97,6 @@ BEGIN
                     END IF;
                 ELSIF (en_mode = "00") THEN --modalità WALL (da creare)
                     -- no moviment
-                    -- IF (direction = '1') THEN
-                    --     y_pixel_ref <= y_pixel_ref + 5;
-                    --     IF (y_pixel_ref + y_dim >= bottom_limit) THEN
-                    --         direction <= '0';
-                    --     END IF;
-                    -- ELSIF (direction = '0') THEN
-                    --     y_pixel_ref <= y_pixel_ref - 5;
-                    --     IF (y_pixel_ref <= top_limit) THEN
-                    --         direction <= '1';
-                    --     END IF;
-                    -- END IF;
                 ELSIF (en_mode = "01") THEN --modalità CPU
                     IF (hm_flag = '1') THEN
                         IF (y_pixel_ref + y_dim < hm_ball_tracking) THEN
