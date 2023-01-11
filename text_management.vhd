@@ -50,7 +50,7 @@ BEGIN
     press_key_to_start : Pixel_On_Text GENERIC MAP(textLength => 28)
     PORT MAP(
         clk => clk,
-        displayText => "Press KEY3 to start the game",
+        displayText => "Press KEY0 to start the game",
         x => 240, y => 320,
         horzCoord => hpos,
         vertCoord => vpos,

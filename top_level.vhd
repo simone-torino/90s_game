@@ -51,6 +51,13 @@ ARCHITECTURE behavior OF top_level IS
         );
     END COMPONENT;
 
+    COMPONENT counter IS
+        PORT (
+            clk, rstn, en : IN STD_LOGIC;
+            tc : OUT STD_LOGIC
+        );
+    END COMPONENT;
+
     COMPONENT game IS
         PORT (
             clk, rstn, en : IN STD_LOGIC;
@@ -83,11 +90,11 @@ ARCHITECTURE behavior OF top_level IS
 
     SIGNAL pixel_on_game, pixel_on_text, pixel_on_racket_left, pixel_on_racket_right : STD_LOGIC;
 
-    SIGNAL en_game, en_welcome_page, en_game_over, en_choose_mod, end_game : STD_LOGIC;
+    SIGNAL en_game, en_welcome_page, en_game_over, en_choose_mod, en_cnt, end_game, tc : STD_LOGIC;
     SIGNAL mode : STD_LOGIC_VECTOR (1 DOWNTO 0);
 
     --FSM state declaration
-    TYPE state_type IS (idle, main_menu, mode_selection, wall_mode, cpu_mode, two_players_mode, game_over);
+    TYPE state_type IS (idle, main_menu, wait_mode, mode_selection, wall_mode, cpu_mode, two_players_mode, wait_game_over, game_over, wait_idle);
     SIGNAL state : state_type;
 
 BEGIN
@@ -97,7 +104,7 @@ BEGIN
 
     --system reset
     RESETn <= NOT(SW(0)) AND LOCKED;
-    
+
     --FSM state transition management
     STATE_TRANSITION : PROCESS (clock25, RESETn)
     BEGIN
@@ -108,10 +115,16 @@ BEGIN
                 WHEN idle =>
                     state <= main_menu;
                 WHEN main_menu =>
-                    IF (KEY(3) = '0') THEN
-                        state <= mode_selection;
+                    IF (KEY(0) = '0') THEN
+                        state <= wait_mode;
                     ELSE
                         state <= main_menu;
+                    END IF;
+                WHEN wait_mode =>
+                    IF (tc = '1') THEN
+                        state <= mode_selection;
+                    ELSE
+                        state <= wait_mode;
                     END IF;
                 WHEN mode_selection =>
                     IF (KEY(0) = '0') THEN
@@ -141,11 +154,23 @@ BEGIN
                     ELSE
                         state <= two_players_mode;
                     END IF;
+                WHEN wait_game_over =>
+                    IF (tc = '1') THEN
+                        state <= game_over;
+                    ELSE
+                        state <= wait_game_over;
+                    END IF;
                 WHEN game_over =>
                     IF (KEY(0) = '0') THEN
                         state <= idle;
                     ELSE
                         state <= game_over;
+                    END IF;
+                WHEN wait_idle =>
+                    IF (tc = '1') THEN
+                        state <= idle;
+                    ELSE
+                        state <= wait_idle;
                     END IF;
                 WHEN OTHERS =>
                     state <= idle;
@@ -160,11 +185,13 @@ BEGIN
         en_welcome_page <= '0';
         en_game_over <= '0';
         en_choose_mod <= '0';
+        en_cnt <= '0';
         rstn <= '1';
         mode <= "00";
         CASE state IS
             WHEN idle => rstn <= '0';
             WHEN main_menu => en_welcome_page <= '1';
+            WHEN wait_mode => en_cnt <= '1';
             WHEN mode_selection => en_choose_mod <= '1';
             WHEN wall_mode => en_game <= '1';
                 mode <= "00";
@@ -172,7 +199,9 @@ BEGIN
                 mode <= "01";
             WHEN two_players_mode => en_game <= '1';
                 mode <= "10";
+            WHEN wait_game_over => en_cnt <= '1';
             WHEN game_over => en_game_over <= '1';
+            WHEN wait_idle => en_cnt <= '1';
             WHEN OTHERS => rstn <= '1';
         END CASE;
     END PROCESS;
@@ -215,6 +244,11 @@ BEGIN
         en_welcome_page => en_welcome_page, en_choose_mod => en_choose_mod, en_game_over => en_game_over,
         en_game => en_game, choose_mode => mode,
         pixel_on => pixel_on_text
+    );
+
+    cnt : counter PORT MAP(
+        clk => clock25, rstn => RSTn, en => en_cnt,
+        tc => tc
     );
 
 END behavior;
