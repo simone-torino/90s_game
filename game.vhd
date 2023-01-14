@@ -93,8 +93,24 @@ ARCHITECTURE behavior OF game IS
     SIGNAL hm_ball_tracking : INTEGER;
     SIGNAL hm_flag : STD_LOGIC;
 
+    --signals for expressions in the portmap
+    SIGNAL s_button3 : STD_LOGIC;
+    SIGNAL s_button2 : STD_LOGIC;
+    SIGNAL s_button1 : STD_LOGIC;
+    SIGNAL s_button0 : STD_LOGIC;
+    SIGNAL s_limit_sx : INTEGER;
+    SIGNAL s_limit_dx : INTEGER;
+
 BEGIN
-    
+
+    s_button3 <= NOT(button(3));
+    s_button2 <= NOT(button(2));
+    s_button1 <= NOT(button(1));
+    s_button0 <= NOT(button(0));
+
+    s_limit_sx <= left_limit + 2;
+    s_limit_dx <= right_limit - 10 - 2;
+
     --components port map
 
     field_portmap : field PORT MAP(
@@ -108,8 +124,8 @@ BEGIN
         clk => clk, rstn => rstn, en => en,
         x_pixel_ref => x_ref_left_racket, y_pixel_ref => y_ref_left_racket,
         xscan => hpos, yscan => vpos,
-        button_up => NOT(button(3)), button_down => NOT(button(2)),
-        top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => left_limit + 2,
+        button_up => s_button3, button_down => s_button2,
+        top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => s_limit_sx,
         en_mode => choose_mode,
         hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
         flag => pixel_on_racket_left
@@ -119,8 +135,8 @@ BEGIN
         clk => clk, rstn => rstn, en => en,
         x_pixel_ref => x_ref_right_racket, y_pixel_ref => y_ref_right_racket,
         xscan => hpos, yscan => vpos,
-        button_up => NOT(button(1)), button_down => NOT(button(0)),
-        top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => right_limit - 10 - 2,
+        button_up => s_button1, button_down => s_button0,
+        top_limit => top_limit, bottom_limit => bottom_limit, lateral_limit => s_limit_dx,
         en_mode => "10",
         hm_ball_tracking => hm_ball_tracking, hm_flag => hm_flag,
         flag => pixel_on_racket_right
