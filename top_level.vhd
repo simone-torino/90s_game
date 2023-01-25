@@ -3,7 +3,6 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
 ENTITY top_level IS
-
     PORT (
         CLOCK_50 : IN STD_LOGIC;
         KEY : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
@@ -12,7 +11,8 @@ ENTITY top_level IS
         VGA_VS, VGA_HS : OUT STD_LOGIC;
         HEX0, HEX1 : OUT STD_LOGIC_VECTOR(0 TO 6);
         HEX5, HEX4 : OUT STD_LOGIC_VECTOR(0 TO 6);
-        SW : IN STD_LOGIC_VECTOR(0 DOWNTO 0)
+        SW : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+        stop_game_simulation : IN STD_LOGIC --used only in tb
     );
 END top_level;
 
@@ -89,6 +89,7 @@ ARCHITECTURE behavior OF top_level IS
     SIGNAL locked : STD_LOGIC;
 
     SIGNAL pixel_on_game, pixel_on_text, pixel_on_racket_left, pixel_on_racket_right : STD_LOGIC;
+    SIGNAL stop_game : STD_LOGIC;
 
     SIGNAL en_game, en_welcome_page, en_game_over, en_choose_mod, en_cnt, end_game, tc : STD_LOGIC;
     SIGNAL mode : STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -104,6 +105,7 @@ BEGIN
 
     --system reset
     RESETn <= NOT(SW(0)) AND LOCKED;
+    end_game <= stop_game OR stop_game_simulation;
 
     --FSM state transition management
     STATE_TRANSITION : PROCESS (clock25, RESETn)
@@ -227,7 +229,7 @@ BEGIN
         choose_mode => mode,
         score_dx1 => HEX1, score_dx0 => HEX0,
         score_sx5 => HEX5, score_sx4 => HEX4,
-        end_game => end_game,
+        end_game => stop_game,
         pixel_on => pixel_on_game, pixel_on_racket_left => pixel_on_racket_left, pixel_on_racket_right => pixel_on_racket_right
     );
 
