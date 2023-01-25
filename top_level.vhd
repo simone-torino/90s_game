@@ -81,7 +81,7 @@ ARCHITECTURE behavior OF top_level IS
         );
     END COMPONENT;
 
-    -- signals declaration
+    --Signals declaration
     SIGNAL RESETn, rstn : STD_LOGIC;
     SIGNAL hpos, vpos : INTEGER;
     SIGNAL hsync, vsync : STD_LOGIC;
@@ -103,7 +103,7 @@ BEGIN
     VGA_SYNC_N <= '1';
     VGA_BLANK_N <= '1';
 
-    --system reset
+    --System reset
     RESETn <= NOT(SW(0)) AND LOCKED;
     end_game <= stop_game OR stop_game_simulation;
 
@@ -180,7 +180,7 @@ BEGIN
         END IF;
     END PROCESS;
 
-    --signal management in the FSM states
+    --Signal management in the FSM states
     SIGNAL_PROCESS : PROCESS (state)
     BEGIN
         en_game <= '0';
@@ -208,7 +208,7 @@ BEGIN
         END CASE;
     END PROCESS;
 
-    --components port map
+    --Components port map
     vga_signals : vga_management PORT MAP(
         clk => clock25, rstn => RSTn,
         hs => hsync, vs => vsync,

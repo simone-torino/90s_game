@@ -16,16 +16,16 @@ ARCHITECTURE behavior OF text_management IS
 
     COMPONENT Pixel_On_Text IS
         GENERIC (
-            -- needed for init displayText, the default value 11 is just a random number
+            --Needed for init displayText, the default value 11 is just a random number
             textLength : INTEGER := 11
         );
         PORT (
             clk : IN STD_LOGIC;
             displayText : IN STRING (1 TO textLength);
-            -- top left corner of the text
+            --Top left corner of the text
             x : IN INTEGER;
             y : IN INTEGER;
-            -- current pixel postion
+            --Current pixel postion
             horzCoord : IN INTEGER;
             vertCoord : IN INTEGER;
             pixel : OUT STD_LOGIC := '0'
