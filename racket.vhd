@@ -30,12 +30,13 @@ ARCHITECTURE behavior OF racket IS
     SIGNAL direction : STD_LOGIC;
 
 BEGIN
-    -- value to draw racket
+    -- Values necessary to draw the racket
     x_left <= x_pixel_ref;
     x_right <= x_pixel_ref + x_dim;
     y_up <= y_pixel_ref;
     y_down <= y_pixel_ref + y_dim;
 
+    --The racket is a 10x56 rectangle
     draw_racket : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -59,6 +60,7 @@ BEGIN
         END IF;
     END PROCESS;
 
+    --A clock reference is needed to determine racket speed.
     create_clock_ref : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -84,7 +86,7 @@ BEGIN
             direction <= '1';
         ELSIF (clk_ref'event AND clk_ref = '1') THEN
             IF (en = '1') THEN
-                IF (en_mode = "10") THEN --modalità 2 PLAYERS
+                IF (en_mode = "10") THEN --Two players mode
                     IF (button_up = '1') THEN
                         IF (y_pixel_ref > top_limit) THEN
                             y_pixel_ref <= y_pixel_ref - 1;
@@ -95,9 +97,9 @@ BEGIN
                             y_pixel_ref <= y_pixel_ref + 1;
                         END IF;
                     END IF;
-                ELSIF (en_mode = "00") THEN --modalità WALL (da creare)
-                    -- no moviment
-                ELSIF (en_mode = "01") THEN --modalità CPU
+                ELSIF (en_mode = "00") THEN --Wall mode
+                    --Racket does not move
+                ELSIF (en_mode = "01") THEN --Cpu mode
                     IF (hm_flag = '1') THEN
                         IF (y_pixel_ref + y_dim < hm_ball_tracking) THEN
                             y_pixel_ref <= y_pixel_ref + 1;
