@@ -2,7 +2,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
---This entity is made of all the components necessary to play
+--component used to combine all components necessary to play
 ENTITY game IS
     PORT (
         clk, rstn, en : IN STD_LOGIC;
@@ -28,7 +28,7 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
-    --Draws and moves the racket according to the game mode
+    --Draws and move the rackets according to the game mode
     COMPONENT racket IS
         PORT (
             clk, rstn, en : IN STD_LOGIC;
@@ -44,7 +44,7 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
-    --Draws and manages the ball movements 
+    --Draws and manage the ball movements 
     COMPONENT ball IS
         PORT (
             clk, rstn, en : IN STD_LOGIC;
@@ -53,7 +53,7 @@ ARCHITECTURE behavior OF game IS
             right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
             y_racket_left, y_racket_right, x_racket_left, x_racket_right : IN INTEGER;
             mode : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-            hm_flag : OUT STD_LOGIC; --Hard mode flags makes the enemy racket move autonomously
+            hm_flag : OUT STD_LOGIC; --hard mode flag per muovere la racchetta avversaria
             hm_ball_tracking : OUT INTEGER;
             flag : OUT STD_LOGIC;
             player_dx_gol : OUT STD_LOGIC;
@@ -61,7 +61,7 @@ ARCHITECTURE behavior OF game IS
         );
     END COMPONENT;
 
-    --Manages to score on the seven segments displays
+    --Manages the score on the 7 segments displays
     COMPONENT scoreboard IS
         PORT (
             rstn : IN STD_LOGIC;
@@ -80,7 +80,7 @@ ARCHITECTURE behavior OF game IS
     --Reference signals por the top-left pixel of the ball
     SIGNAL x_pixel_ref_ball, y_pixel_ref_ball : INTEGER;
 
-    --Flags that allow displaying field and ball on the screen  
+    --Flag referring to pixel to turn on to display field and ball on the screen  
     SIGNAL pixel_on_field, pixel_on_ball : STD_LOGIC;
 
     --Field edges
@@ -89,11 +89,11 @@ ARCHITECTURE behavior OF game IS
     --Signals to manage scores
     SIGNAL player_dx_gol, player_sx_gol : STD_LOGIC;
 
-    --Signals to track the ball and to activate racket movement in cpu mode
+    --Signal to track ball and to activate racket moviment for cpu mode
     SIGNAL hm_ball_tracking : INTEGER;
     SIGNAL hm_flag : STD_LOGIC;
 
-    --Signals for logic expressions in the portmap statements
+    --Signals for expressions in the portmaps
     SIGNAL s_button3 : STD_LOGIC;
     SIGNAL s_button2 : STD_LOGIC;
     SIGNAL s_button1 : STD_LOGIC;
@@ -111,7 +111,7 @@ BEGIN
     s_limit_sx <= left_limit + 2;
     s_limit_dx <= right_limit - 10 - 2;
 
-    --Components port map
+    --components port map
 
     field_portmap : field PORT MAP(
         clk => clk, rstn => rstn, en => en,
@@ -164,7 +164,7 @@ BEGIN
         seg_1 => score_dx1, seg_0 => score_dx0
     );
 
-    --White pixels display during the game
+    --white pixels in game
     pixel_on <= pixel_on_field OR pixel_on_ball;
 
 END behavior;

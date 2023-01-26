@@ -21,7 +21,7 @@ BEGIN
             cnt <= 0;
         ELSIF (clk'event AND clk = '1') THEN
             IF (en = '1') THEN
-                IF (cnt < 25000000) THEN --mettere 2500 per il tb
+                IF (cnt < 25000000) THEN
                     cnt <= cnt + 1;
                     tc <= '0';
                 ELSE

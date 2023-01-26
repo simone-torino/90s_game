@@ -10,7 +10,7 @@ ENTITY ball IS
         right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
         y_racket_left, y_racket_right, x_racket_left, x_racket_right : IN INTEGER;
         mode : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-        hm_flag : OUT STD_LOGIC; --Hard mode flag makes the enemy racket move autonomously
+        hm_flag : OUT STD_LOGIC; --hard mode flag per muovere la racchetta avversaria
         hm_ball_tracking : OUT INTEGER;
         flag : OUT STD_LOGIC;
         player_dx_gol : OUT STD_LOGIC;
@@ -40,7 +40,6 @@ BEGIN
 
     freq_sub <= freq_subtractor;
 
-    --The ball is a 10x10 square
     draw_ball : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -56,7 +55,6 @@ BEGIN
         END IF;
     END PROCESS;
 
-    --A clock reference is needed to determine ball speed.
     create_clock_ref : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -64,7 +62,7 @@ BEGIN
             cnt <= 0;
         ELSIF (clk'event AND clk = '1') THEN
             IF (en = '1') THEN
-                IF (cnt < 104166 - freq_sub) THEN --This value determines movement's smoothness
+                IF (cnt < 104166 - freq_sub) THEN --cambiare questo valore per avere movimenti più fluidi
                     cnt <= cnt + 1;
                 ELSE
                     cnt <= 0;
@@ -74,7 +72,6 @@ BEGIN
         END IF;
     END PROCESS;
 
-    --This process manages every ball movement and its speed
     ball_moviment : PROCESS (clk_ref, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -92,14 +89,14 @@ BEGIN
                 y_pixel_ref <= y_pixel_ref + vel_y;
                 x_pixel_ref <= x_pixel_ref + vel_x;
 
-                --Collision with upper and lower walls
+                -- collisioni muro sopra e sotto
                 IF (y_pixel_ref + y_dim >= bottom_limit) THEN
                     vel_y <= - 1;
                 ELSIF (y_pixel_ref <= top_limit) THEN
                     vel_y <= 1;
                 END IF;
 
-                --Collision with left racket (enemy)
+                --collisione racchetta sx
                 IF (mode = "00") THEN
                     IF (x_pixel_ref <= x_racket_left + 10 AND y_pixel_ref >= top_limit AND y_pixel_ref <= bottom_limit) THEN
                         hit_cnt <= hit_cnt + 1;
@@ -112,41 +109,38 @@ BEGIN
                     IF (x_pixel_ref <= x_racket_left + 10 AND y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 56) THEN
                         hit_cnt <= hit_cnt + 1;
                         vel_x <= 1;
-                        hm_flag <= '0'; --During hard mode the racket stops after it hits the ball
-
-                        --The ball takes different directions depending on which part of the it racket hits
-                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --Upper part
+                        hm_flag <= '0'; --una volta presa la palla, si ferma (se in hard mode)
+                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --parte superiore
                             vel_y <= - 1;
-                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --Central part
+                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --parte centrale
                             vel_y <= 0;
-                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --Lower part
+                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --parte inferiore
                             vel_y <= 1;
                         END IF;
                     END IF;
                 END IF;
 
-                --Collisions with right racket (player)
+                --collisione racchetta dx 
                 IF (x_pixel_ref >= x_racket_right - 10 AND y_pixel_ref >= y_racket_right - 9 AND y_pixel_ref <= y_racket_right + 56) THEN
                     hit_cnt <= hit_cnt + 1;
                     vel_x <= - 1;
-                    hm_flag <= '1'; --During hard mode, when the player hits the ball the enemy racket moves in its direction.
+                    hm_flag <= '1'; --dal momento in cui il player prende la palla, in hard mode l'avversario si muove verso la direzione
 
-                    --The ball takes different directions depending on which part of the it racket hits
-                    IF (y_pixel_ref >= y_racket_right - 9 AND y_pixel_ref <= y_racket_right + 14) THEN --Upper part
+                    IF (y_pixel_ref >= y_racket_right - 9 AND y_pixel_ref <= y_racket_right + 14) THEN --parte superiore
                         vel_y <= - 1;
-                    ELSIF (y_pixel_ref >= y_racket_right + 15 AND y_pixel_ref <= y_racket_right + 32) THEN --Central part
+                    ELSIF (y_pixel_ref >= y_racket_right + 15 AND y_pixel_ref <= y_racket_right + 32) THEN --parte centrale
                         vel_y <= 0;
-                    ELSIF (y_pixel_ref >= y_racket_right + 33 AND y_pixel_ref <= y_racket_right + 56) THEN --Lower part
+                    ELSIF (y_pixel_ref >= y_racket_right + 33 AND y_pixel_ref <= y_racket_right + 56) THEN --parte inferiore
                         vel_y <= 1;
                     END IF;
 
                 END IF;
 
-                --Collision with left and right walls (GOAL)
+                -- collisione muro dx e sx (GOAL)
                 IF (x_pixel_ref + x_dim >= right_limit) THEN
                     hit_cnt <= 0;
                     vel_y <= 0;
-                    vel_x <= 1; --The ball goes in the direction of the side which took the goal
+                    vel_x <= 1; --palla verso chi ha subito gol
                     player_sx_gol <= '1';
                     freq_subtractor <= 0;
                     y_pixel_ref <= top_limit + ((bottom_limit - top_limit)/2);
@@ -165,13 +159,12 @@ BEGIN
                     player_sx_gol <= '0';
                     player_dx_gol <= '0';
                 END IF;
-
-                IF (freq_subtractor < 40000) THEN --This value sets the maximum ball speed, otherwise it gets too high and bugs
-                    IF (hit_cnt = 3) THEN --Every three shots ball speed increases by 2
-                        hit_cnt <= 0;
-                        freq_subtractor <= freq_subtractor + 5000;
-                    END IF;
-                END IF;
+					 IF (freq_subtractor < 40000) THEN
+						IF (hit_cnt = 5) THEN --dopo 5 scambi aumenta velocità di 2
+							hit_cnt <= 0;
+							freq_subtractor <= freq_subtractor + 5000;
+						END IF;
+					 END IF;
             END IF;
         END IF;
     END PROCESS;
