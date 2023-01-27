@@ -126,14 +126,21 @@ BEGIN
                     vel_x <= - 1;
                     hm_flag <= '1'; --dal momento in cui il player prende la palla, in hard mode l'avversario si muove verso la direzione
 
-                    IF (y_pixel_ref >= y_racket_right - 9 AND y_pixel_ref <= y_racket_right + 14) THEN --parte superiore
-                        vel_y <= - 1;
-                    ELSIF (y_pixel_ref >= y_racket_right + 15 AND y_pixel_ref <= y_racket_right + 32) THEN --parte centrale
-                        vel_y <= 0;
-                    ELSIF (y_pixel_ref >= y_racket_right + 33 AND y_pixel_ref <= y_racket_right + 56) THEN --parte inferiore
-                        vel_y <= 1;
+                    IF (mode = "00") THEN
+                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 22) THEN --parte superiore
+                            vel_y <= - 1;
+                        ELSIF (y_pixel_ref >= y_racket_left + 23 AND y_pixel_ref <= y_racket_left + 56) THEN --parte inferiore
+                            vel_y <= 1;
+                        END IF;
+                    ELSE
+                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --parte superiore
+                            vel_y <= - 1;
+                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --parte centrale
+                            vel_y <= 0;
+                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --parte inferiore
+                            vel_y <= 1;
+                        END IF;
                     END IF;
-
                 END IF;
 
                 -- collisione muro dx e sx (GOAL)
@@ -159,7 +166,7 @@ BEGIN
                     player_sx_gol <= '0';
                     player_dx_gol <= '0';
                 END IF;
-					 IF (freq_subtractor < 40000) THEN
+					 IF (freq_subtractor < 50000) THEN
 						IF (hit_cnt = 5) THEN --dopo 5 scambi aumenta velocità di 2
 							hit_cnt <= 0;
 							freq_subtractor <= freq_subtractor + 5000;
