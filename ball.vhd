@@ -10,7 +10,7 @@ ENTITY ball IS
         right_limit, left_limit, top_limit, bottom_limit : IN INTEGER;
         y_racket_left, y_racket_right, x_racket_left, x_racket_right : IN INTEGER;
         mode : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-        hm_flag : OUT STD_LOGIC; --Hard mode flag makes the enemy racket move autonomously
+        hm_flag : OUT STD_LOGIC; --CPU mode flag makes the enemy racket move autonomously, also referred to as hard mode (hm)
         hm_ball_tracking : OUT INTEGER;
         flag : OUT STD_LOGIC;
         player_dx_gol : OUT STD_LOGIC;
@@ -112,12 +112,12 @@ BEGIN
                     IF (x_pixel_ref <= x_racket_left + 10 AND y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 56) THEN
                         hit_cnt <= hit_cnt + 1;
                         vel_x <= 1;
-                        hm_flag <= '0'; --una volta presa la palla, si ferma (se in hard mode)
-                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --parte superiore
+                        hm_flag <= '0'; --In CPU mode the enemy racket stops after it hits the ball
+                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --Upper part
                             vel_y <= - 1;
-                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --parte centrale
+                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --Central part
                             vel_y <= 0;
-                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --parte inferiore
+                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --Lower part
                             vel_y <= 1;
                         END IF;
                     END IF;
@@ -127,20 +127,21 @@ BEGIN
                 IF (x_pixel_ref >= x_racket_right - 10 AND y_pixel_ref >= y_racket_right - 9 AND y_pixel_ref <= y_racket_right + 56) THEN
                     hit_cnt <= hit_cnt + 1;
                     vel_x <= - 1;
-                    hm_flag <= '1'; --dal momento in cui il player prende la palla, in hard mode l'avversario si muove verso la direzione
+                    hm_flag <= '1'; --In CPU mode when the player hits the ball the enemy racket moves in its direction.
 
+                    --In wall mode
                     IF (mode = "00") THEN
-                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 22) THEN --parte superiore
+                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 22) THEN --Upper part
                             vel_y <= - 1;
-                        ELSIF (y_pixel_ref >= y_racket_left + 23 AND y_pixel_ref <= y_racket_left + 56) THEN --parte inferiore
+                        ELSIF (y_pixel_ref >= y_racket_left + 23 AND y_pixel_ref <= y_racket_left + 56) THEN --Lower part
                             vel_y <= 1;
                         END IF;
                     ELSE
-                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --parte superiore
+                        IF (y_pixel_ref >= y_racket_left - 9 AND y_pixel_ref <= y_racket_left + 14) THEN --Upper part
                             vel_y <= - 1;
-                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --parte centrale
+                        ELSIF (y_pixel_ref >= y_racket_left + 15 AND y_pixel_ref <= y_racket_left + 32) THEN --Central part
                             vel_y <= 0;
-                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --parte inferiore
+                        ELSIF (y_pixel_ref >= y_racket_left + 33 AND y_pixel_ref <= y_racket_left + 56) THEN --Lower part
                             vel_y <= 1;
                         END IF;
                     END IF;
