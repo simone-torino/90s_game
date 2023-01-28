@@ -50,16 +50,16 @@ END Pixel_On_Text;
 ARCHITECTURE Behavioral OF Pixel_On_Text IS
 
 	SIGNAL fontAddress : INTEGER;
-	-- A row of bit in a charactor, we check if our current (x,y) is 1 in char row
+	-- A row of bit in a character, we check if our current (x,y) is 1 in char row
 	SIGNAL charBitInRow : STD_LOGIC_VECTOR(FONT_WIDTH - 1 DOWNTO 0) := (OTHERS => '0');
 	-- char in ASCII code
 	SIGNAL charCode : INTEGER := 0;
-	-- the position(column) of a charactor in the given text
+	-- the position(column) of a character in the given text
 	SIGNAL charPosition : INTEGER := 0;
-	-- the bit position(column) in a charactor
+	-- the bit position(column) in a character
 	SIGNAL bitPosition : INTEGER := 0;
 BEGIN
-	-- (horzCoord - x): x positionin the top left of the whole text
+	-- (horzCoord - x): x position in the top left of the whole text
 	charPosition <= (horzCoord - x)/FONT_WIDTH + 1;
 	bitPosition <= (horzCoord - x) MOD FONT_WIDTH;
 	charCode <= CHARACTER'pos(displayText(charPosition));
@@ -94,7 +94,7 @@ BEGIN
 
 			-- need to check if the pixel is on for text
 			IF inXRange AND inYRange THEN
-				-- FONT_WIDTH-bitPosition: we are reverting the charactor
+				-- FONT_WIDTH-bitPosition: we are reverting the character
 				IF charBitInRow(FONT_WIDTH - bitPosition) = '1' THEN
 					pixel <= '1';
 				END IF;

@@ -14,12 +14,12 @@ BEGIN
 
     PROCESS (Rstn, Clk)
     BEGIN
-        IF (Rstn = '0') THEN --asynch reset
+        IF (Rstn = '0') THEN --Asynchronous reset
             Q <= '1';
         ELSIF (Clk'EVENT AND Clk = '1') THEN
-            IF (Clr = '1') THEN --synch reset
+            IF (Clr = '1') THEN --Synchronous reset
                 Q <= '0';
-            ELSIF (Ld = '1') THEN --load signal
+            ELSIF (Ld = '1') THEN --Load signal
                 Q <= D;
             END IF;
         END IF;

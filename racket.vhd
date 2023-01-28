@@ -30,12 +30,13 @@ ARCHITECTURE behavior OF racket IS
     SIGNAL direction : STD_LOGIC;
 
 BEGIN
-    -- value to draw racket
+    -- Values necessary to draw the racket
     x_left <= x_pixel_ref;
     x_right <= x_pixel_ref + x_dim;
     y_up <= y_pixel_ref;
     y_down <= y_pixel_ref + y_dim;
 
+    --The racket is a 10x56 rectangle
     draw_racket : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -59,6 +60,7 @@ BEGIN
         END IF;
     END PROCESS;
 
+    --A clock reference is needed to determine racket speed.
     create_clock_ref : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -76,7 +78,7 @@ BEGIN
         END IF;
     END PROCESS;
 
-    racket_moviment_vertical : PROCESS (clk_ref, rstn)
+    racket_movement_vertical : PROCESS (clk_ref, rstn)
     BEGIN
         IF (rstn = '0') THEN
             x_pixel_ref <= lateral_limit;

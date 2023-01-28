@@ -2,7 +2,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
---component used to manage the VGA synch signals (hs, vs) and the scan signals on the screen (hpos, vpos)
+--Component used to manage the VGA synch signals (hs, vs) and the scan signals on the screen (hpos, vpos)
 ENTITY vga_management IS
     PORT (
         clk, rstn : IN STD_LOGIC;
@@ -13,7 +13,7 @@ END vga_management;
 
 ARCHITECTURE behavior OF vga_management IS
 
-    --constants declaration with values assignment according to the VGA protocol 
+    --Constants declaration with values assignment according to the VGA protocol 
     CONSTANT ha : INTEGER := 96;
     CONSTANT hb : INTEGER := 48;
     CONSTANT hc : INTEGER := 640;
@@ -26,7 +26,7 @@ ARCHITECTURE behavior OF vga_management IS
 
 BEGIN
 
-    --horizontal synch signal process
+    --Horizontal synch signal process
     hsynch : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -40,7 +40,7 @@ BEGIN
         END IF;
     END PROCESS;
 
-    --vertical synch signal process
+    --Vertical synch signal process
     vsynch : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -54,7 +54,7 @@ BEGIN
         END IF;
     END PROCESS;
 
-    --horizontal scan process
+    --Horizontal scan process
     hscan : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN
@@ -68,7 +68,7 @@ BEGIN
         END IF;
     END PROCESS;
 
-    --veritcal scan process
+    --Veritcal scan process
     vscan : PROCESS (clk, rstn)
     BEGIN
         IF (rstn = '0') THEN

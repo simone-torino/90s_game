@@ -2,7 +2,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
---component used to combine all components necessary to play
+--This entity is made of all the components necessary to play
 ENTITY game IS
     PORT (
         clk, rstn, en : IN STD_LOGIC;
@@ -111,7 +111,7 @@ BEGIN
     s_limit_sx <= left_limit + 2;
     s_limit_dx <= right_limit - 10 - 2;
 
-    --components port map
+    --Components port map
 
     field_portmap : field PORT MAP(
         clk => clk, rstn => rstn, en => en,
@@ -164,7 +164,7 @@ BEGIN
         seg_1 => score_dx1, seg_0 => score_dx0
     );
 
-    --white pixels in game
+    --Enables vga logic to display white pixels during the game
     pixel_on <= pixel_on_field OR pixel_on_ball;
 
 END behavior;
