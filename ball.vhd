@@ -75,7 +75,7 @@ BEGIN
     END PROCESS;
 
     --This process manages every ball movement and its speed
-    ball_moviment : PROCESS (clk_ref, rstn)
+    ball_movement : PROCESS (clk_ref, rstn)
     BEGIN
         IF (rstn = '0') THEN
             y_pixel_ref <= top_limit + ((bottom_limit - top_limit)/2);
