@@ -15,6 +15,12 @@ END scoreboard;
 
 ARCHITECTURE behavioral OF scoreboard IS
 
+    COMPONENT display_7_seg IS
+        PORT (
+            input : IN INTEGER;
+            output : OUT STD_LOGIC_VECTOR(0 TO 6));
+    END COMPONENT;
+
     SIGNAL score_dx0, score_dx1, score_sx : INTEGER;
     SIGNAL game_end_dx, game_end_sx : STD_LOGIC;
 
@@ -71,88 +77,92 @@ BEGIN
     game_end <= game_end_sx OR game_end_dx;
     seg_5 <= "0000001";
 
-    display_dx0_decoder : PROCESS (score_dx0)
-    BEGIN
-        CASE score_dx0 IS
-            WHEN 0 => -- output '0'
-                seg_0 <= "0000001";
-            WHEN 1 => -- output '1'
-                seg_0 <= "1001111";
-            WHEN 2 => -- output '2'
-                seg_0 <= "0010010";
-            WHEN 3 => -- output '3'
-                seg_0 <= "0000110";
-            WHEN 4 => -- output '4'
-                seg_0 <= "1001100";
-            WHEN 5 => -- output '5'
-                seg_0 <= "0100100";
-            WHEN 6 => -- output '6'
-                seg_0 <= "0100000";
-            WHEN 7 => -- output '7'
-                seg_0 <= "0001111";
-            WHEN 8 => -- output '8'
-                seg_0 <= "0000000";
-            WHEN 9 => -- output '9'
-                seg_0 <= "0000100";
-            WHEN OTHERS => -- default output
-                seg_0 <= "1111110";
-        END CASE;
-    END PROCESS;
+    display_dx0_decoder : display_7_seg PORT MAP(score_dx0, seg_0);
+    display_dx1_decoder : display_7_seg PORT MAP(score_dx1, seg_1);
+    display_sx_decoder : display_7_seg PORT MAP(score_sx, seg_4);
 
-    display_dx1_decoder : PROCESS (score_dx1)
-    BEGIN
-        CASE score_dx1 IS
-            WHEN 0 => -- output '0'
-                seg_1 <= "0000001";
-            WHEN 1 => -- output '1'
-                seg_1 <= "1001111";
-            WHEN 2 => -- output '2'
-                seg_1 <= "0010010";
-            WHEN 3 => -- output '3'
-                seg_1 <= "0000110";
-            WHEN 4 => -- output '4'
-                seg_1 <= "1001100";
-            WHEN 5 => -- output '5'
-                seg_1 <= "0100100";
-            WHEN 6 => -- output '6'
-                seg_1 <= "0100000";
-            WHEN 7 => -- output '7'
-                seg_1 <= "0001111";
-            WHEN 8 => -- output '8'
-                seg_1 <= "0000000";
-            WHEN 9 => -- output '9'
-                seg_1 <= "0000100";
-            WHEN OTHERS => -- default output
-                seg_1 <= "1111110";
-        END CASE;
-    END PROCESS;
+    -- display_dx0_decoder : PROCESS (score_dx0)
+    -- BEGIN
+    --     CASE score_dx0 IS
+    --         WHEN 0 => -- output '0'
+    --             seg_0 <= "0000001";
+    --         WHEN 1 => -- output '1'
+    --             seg_0 <= "1001111";
+    --         WHEN 2 => -- output '2'
+    --             seg_0 <= "0010010";
+    --         WHEN 3 => -- output '3'
+    --             seg_0 <= "0000110";
+    --         WHEN 4 => -- output '4'
+    --             seg_0 <= "1001100";
+    --         WHEN 5 => -- output '5'
+    --             seg_0 <= "0100100";
+    --         WHEN 6 => -- output '6'
+    --             seg_0 <= "0100000";
+    --         WHEN 7 => -- output '7'
+    --             seg_0 <= "0001111";
+    --         WHEN 8 => -- output '8'
+    --             seg_0 <= "0000000";
+    --         WHEN 9 => -- output '9'
+    --             seg_0 <= "0000100";
+    --         WHEN OTHERS => -- default output
+    --             seg_0 <= "1111110";
+    --     END CASE;
+    -- END PROCESS;
 
-    display_sx_decoder : PROCESS (score_sx)
-    BEGIN
-        CASE score_sx IS
-            WHEN 0 => -- output '0'
-                seg_4 <= "0000001";
-            WHEN 1 => -- output '1'
-                seg_4 <= "1001111";
-            WHEN 2 => -- output '2'
-                seg_4 <= "0010010";
-            WHEN 3 => -- output '3'
-                seg_4 <= "0000110";
-            WHEN 4 => -- output '4'
-                seg_4 <= "1001100";
-            WHEN 5 => -- output '5'
-                seg_4 <= "0100100";
-            WHEN 6 => -- output '6'
-                seg_4 <= "0100000";
-            WHEN 7 => -- output '7'
-                seg_4 <= "0001111";
-            WHEN 8 => -- output '8'
-                seg_4 <= "0000000";
-            WHEN 9 => -- output '9'
-                seg_4 <= "0000100";
-            WHEN OTHERS => -- default output
-                seg_4 <= "1111110";
-        END CASE;
-    END PROCESS;
+    -- display_dx1_decoder : PROCESS (score_dx1)
+    -- BEGIN
+    --     CASE score_dx1 IS
+    --         WHEN 0 => -- output '0'
+    --             seg_1 <= "0000001";
+    --         WHEN 1 => -- output '1'
+    --             seg_1 <= "1001111";
+    --         WHEN 2 => -- output '2'
+    --             seg_1 <= "0010010";
+    --         WHEN 3 => -- output '3'
+    --             seg_1 <= "0000110";
+    --         WHEN 4 => -- output '4'
+    --             seg_1 <= "1001100";
+    --         WHEN 5 => -- output '5'
+    --             seg_1 <= "0100100";
+    --         WHEN 6 => -- output '6'
+    --             seg_1 <= "0100000";
+    --         WHEN 7 => -- output '7'
+    --             seg_1 <= "0001111";
+    --         WHEN 8 => -- output '8'
+    --             seg_1 <= "0000000";
+    --         WHEN 9 => -- output '9'
+    --             seg_1 <= "0000100";
+    --         WHEN OTHERS => -- default output
+    --             seg_1 <= "1111110";
+    --     END CASE;
+    -- END PROCESS;
+
+    -- display_sx_decoder : PROCESS (score_sx)
+    -- BEGIN
+    --     CASE score_sx IS
+    --         WHEN 0 => -- output '0'
+    --             seg_4 <= "0000001";
+    --         WHEN 1 => -- output '1'
+    --             seg_4 <= "1001111";
+    --         WHEN 2 => -- output '2'
+    --             seg_4 <= "0010010";
+    --         WHEN 3 => -- output '3'
+    --             seg_4 <= "0000110";
+    --         WHEN 4 => -- output '4'
+    --             seg_4 <= "1001100";
+    --         WHEN 5 => -- output '5'
+    --             seg_4 <= "0100100";
+    --         WHEN 6 => -- output '6'
+    --             seg_4 <= "0100000";
+    --         WHEN 7 => -- output '7'
+    --             seg_4 <= "0001111";
+    --         WHEN 8 => -- output '8'
+    --             seg_4 <= "0000000";
+    --         WHEN 9 => -- output '9'
+    --             seg_4 <= "0000100";
+    --         WHEN OTHERS => -- default output
+    --             seg_4 <= "1111110";
+    --     END CASE;
+    -- END PROCESS;
 
 END behavioral;
