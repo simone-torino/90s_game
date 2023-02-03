@@ -26,6 +26,7 @@ ARCHITECTURE behavioral OF scoreboard IS
 
 BEGIN
 
+    --The two right hand side displays can show numbers from 00 to 99
     update_score_dx : PROCESS (rstn, player_dx_gol)
     BEGIN
         IF (rstn = '0') THEN
@@ -55,6 +56,7 @@ BEGIN
         END IF;
     END PROCESS;
 
+    -- The screens on the left show only numbers from 00 to 05
     update_score_sx : PROCESS (rstn, player_sx_gol)
     BEGIN
         IF (rstn = '0') THEN
@@ -74,7 +76,10 @@ BEGIN
         END IF;
     END PROCESS;
 
+    --The ending of the game depends on display's values
     game_end <= game_end_sx OR game_end_dx;
+
+    --Leftmost display is kept on for aesthetic reasons
     seg_5 <= "0000001";
 
     display_dx0_decoder : display_7_seg PORT MAP(score_dx0, seg_0);
