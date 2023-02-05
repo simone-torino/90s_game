@@ -88,6 +88,8 @@ ARCHITECTURE behavior OF top_level IS
     SIGNAL clock25 : STD_LOGIC;
     SIGNAL locked : STD_LOGIC;
 
+    SIGNAL ff1_out, ff2_out : STD_LOGIC;
+
     SIGNAL pixel_on_game, pixel_on_text, pixel_on_racket_left, pixel_on_racket_right : STD_LOGIC;
 
     SIGNAL en_game, en_welcome_page, en_game_over, en_choose_mod, en_cnt, end_game, tc : STD_LOGIC;
@@ -213,9 +215,13 @@ BEGIN
         hpos => hpos, vpos => vpos
     );
 
-    ff1 : FlipFlop_D PORT MAP(hsync, clock25, '1', '0', RSTn, VGA_HS);
+    ff1 : FlipFlop_D PORT MAP(hsync, clock25, '1', '0', RSTn, ff1_out);
 
-    ff2 : FlipFlop_D PORT MAP(vsync, clock25, '1', '0', RSTn, VGA_VS);
+    ff2 : FlipFlop_D PORT MAP(vsync, clock25, '1', '0', RSTn, ff2_out);
+
+    ff3 : FlipFlop_D PORT MAP(ff1_out, clock25, '1', '0', RSTn, VGA_HS);
+
+    ff4 : FlipFlop_D PORT MAP(ff2_out, clock25, '1', '0', RSTn, VGA_VS);
 
     phaselockedloop : mypll PORT MAP(refclk => CLOCK_50, rst => SW(0), outclk_0 => clock25, outclk_1 => VGA_CLK, locked => locked);
 
